@@ -94,7 +94,7 @@ int NB::isAccessAlive()
 
 bool NB::shutdown()
 {
-  if (_readyState == READY_STATE_DONE) {
+  if (_state == NB_READY) {
     MODEM.send("AT+CPWROFF");
     MODEM.waitForResponse(40000);
   }
