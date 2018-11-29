@@ -1,7 +1,7 @@
 /*
   Radio Access Technology selection for Arduino MKR NB 1500
 
-  This sketch allows you to select your preferred 5G
+  This sketch allows you to select your preferred 4G
   Narrowband Radio Access Technology (RAT).
 
   You can choose among CAT-M1, NB-IoT or a combination of both.
@@ -36,7 +36,7 @@ void setup() {
   for (int i = 0; i < 80; i++) Serial.print("*");
   Serial.println();
   Serial.println("This sketch allows you to select your preferred");
-  Serial.println("5G Narrowband Radio Access Technology (RAT).");
+  Serial.println("4G Narrowband Radio Access Technology (RAT).");
   Serial.println();
   Serial.println("You can choose among CAT-M1, NB-IoT or a combination of both.");
   Serial.println();
@@ -94,7 +94,7 @@ void loop() {
 
   Serial.println();
   Serial.println("Radio Access Technology selected.");
-  Serial.println("Now you can upload your 5G application sketch.");
+  Serial.println("Now you can upload your 4G application sketch.");
   while (true);
 }
 
