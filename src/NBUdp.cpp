@@ -186,12 +186,10 @@ int NBUDP::parsePacket()
     return 0;
   }
 
-/*
   if (!_packetReceived) {
     return 0;
   }
   _packetReceived = false;
-*/
 
   String response;
 
@@ -320,6 +318,15 @@ void NBUDP::handleUrc(const String& urc)
 
     if (socket == _socket) {
       _packetReceived = true;
+    }
+  } else if (urc.startsWith("+UUSOCL: ")) {
+    int socket = urc.charAt(urc.length() - 1) - '0';
+
+    if (socket == _socket) {
+      // this socket closed
+      _socket = -1;
+      _rxIndex = 0;
+      _rxSize = 0;
     }
   }
 }
