@@ -278,6 +278,8 @@ size_t NBClient::write(const uint8_t* buf, size_t size)
   size_t written = 0;
   String command;
 
+  command.reserve(19 + (size > 256 ? 256 : size) * 2);
+
   while (size) {
     size_t chunkSize = size;
 
@@ -287,7 +289,7 @@ size_t NBClient::write(const uint8_t* buf, size_t size)
 
     command.reserve(19 + chunkSize * 2);
 
-    command += "AT+USOWR=";
+    command = "AT+USOWR=";
     command += _socket;
     command += ",";
     command += chunkSize;
