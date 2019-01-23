@@ -1,5 +1,11 @@
 MKRNB 1.0.0 - ????.??.??
 
+MKRNB 1.0.1 - 2019.01.23
+
+* Fixed warning and incorrect enum comparison in NB::shutdown()
+* Choose Radio Access Technology sketch: Corrected 5G to 4G
+* Fixed NBClient::write for write lengths of > 256
+* NBUDP: Changed to use URC for received packets
 
 MKRNB 1.0.0 - 2018.11.28
 
