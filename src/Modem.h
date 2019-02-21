@@ -39,6 +39,8 @@ public:
 
   void debug();
   void noDebug();
+  void binary() { _binary = true; };
+  void noBinary() { _binary = false; };
 
   int autosense(unsigned long timeout = 10000);
 
@@ -77,6 +79,7 @@ private:
 
   #define MAX_URC_HANDLERS 8 // 7 sockets + GPRS
   static bool _debug;
+  bool _binary;
   static ModemUrcHandler* _urcHandlers[MAX_URC_HANDLERS];
 };
 

@@ -31,7 +31,8 @@ ModemClass::ModemClass(Uart& uart, unsigned long baud, int resetPin) :
   _lastResponseOrUrcMillis(0),
   _atCommandState(AT_COMMAND_IDLE),
   _ready(1),
-  _responseDataStorage(NULL)
+  _responseDataStorage(NULL),
+  _binary(false)
 {
   _buffer.reserve(64);
 }
@@ -255,7 +256,16 @@ void ModemClass::poll()
           _lastResponseOrUrcMillis = millis();
           int responseResultIndex;
 
-          responseResultIndex = _buffer.lastIndexOf("OK\r\n");
+          if (_binary) {
+            String lastFour = _buffer.substring(_buffer.length() - 4);
+            if (lastFour.equals("OK\r\n")) {
+              responseResultIndex = _buffer.length() - 4;
+            } else {
+              responseResultIndex = -1;
+            }
+          } else {
+            responseResultIndex = _buffer.lastIndexOf("OK\r\n");
+          }
 
           if (responseResultIndex != -1) {
             _ready = 1;
@@ -285,7 +295,14 @@ void ModemClass::poll()
               }
               _buffer.trim();
 
-              *_responseDataStorage = _buffer;
+              if (_binary) {
+                (*_responseDataStorage).reserve(_buffer.length());
+                *_responseDataStorage += "";
+                for (int i = 0; i < _buffer.length(); i++)
+                  *_responseDataStorage += _buffer[i];
+              } else {
+                *_responseDataStorage = _buffer;
+              }
 
               _responseDataStorage = NULL;
             }
