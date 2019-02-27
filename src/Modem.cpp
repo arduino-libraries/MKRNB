@@ -24,10 +24,11 @@
 bool ModemClass::_debug = false;
 ModemUrcHandler* ModemClass::_urcHandlers[MAX_URC_HANDLERS] = { NULL };
 
-ModemClass::ModemClass(Uart& uart, unsigned long baud, int resetPin) :
+ModemClass::ModemClass(Uart& uart, unsigned long baud, int resetPin, int powerOnPin) :
   _uart(&uart),
   _baud(baud),
   _resetPin(resetPin),
+  _powerOnPin(powerOnPin),
   _lastResponseOrUrcMillis(0),
   _atCommandState(AT_COMMAND_IDLE),
   _ready(1),
@@ -39,6 +40,10 @@ ModemClass::ModemClass(Uart& uart, unsigned long baud, int resetPin) :
 int ModemClass::begin(bool restart)
 {
   _uart->begin(_baud > 115200 ? 115200 : _baud);
+
+  // power on module
+  pinMode(_powerOnPin, OUTPUT);
+  digitalWrite(_powerOnPin, HIGH);
 
   if (_resetPin > -1 && restart) {
     pinMode(_resetPin, OUTPUT);
@@ -81,6 +86,9 @@ void ModemClass::end()
 {
   _uart->end();
   digitalWrite(_resetPin, HIGH);
+
+  // power off module
+  digitalWrite(_powerOnPin, LOW);
 }
 
 void ModemClass::debug()
@@ -326,4 +334,4 @@ void ModemClass::removeUrcHandler(ModemUrcHandler* handler)
   }
 }
 
-ModemClass MODEM(SerialSARA, 115200, SARA_RESETN);
+ModemClass MODEM(SerialSARA, 115200, SARA_RESETN, SARA_PWR_ON);
