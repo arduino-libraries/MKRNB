@@ -23,6 +23,8 @@ script:
   - buildExampleSketch GPRSUdpNtpClient
   - buildExampleSketch NBSSLWebClient
   - buildExampleSketch NBWebClient
+  - buildExampleSketch ReceiveSMS
+  - buildExampleSketch SendSMS
   - buildExampleToolsSketch ChooseRadioAccessTechnology
   - buildExampleToolsSketch NBScanNetworks
   - buildExampleToolsSketch PinManagement

@@ -21,6 +21,7 @@
 #define _MKRNB_H_INCLUDED
 
 #include "NB.h"
+#include "NB_SMS.h"
 #include "GPRS.h"
 #include "NBClient.h"
 #include "NBModem.h"

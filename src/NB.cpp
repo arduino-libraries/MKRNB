@@ -28,6 +28,8 @@ enum {
   READY_STATE_WAIT_CHECK_SIM_RESPONSE,
   READY_STATE_UNLOCK_SIM,
   READY_STATE_WAIT_UNLOCK_SIM_RESPONSE,
+  READY_STATE_SET_PREFERRED_MESSAGE_FORMAT,
+  READY_STATE_WAIT_SET_PREFERRED_MESSAGE_FORMAT_RESPONSE,
   READY_STATE_SET_HEX_MODE,
   READY_STATE_WAIT_SET_HEX_MODE_RESPONSE,
   READY_STATE_SET_AUTOMATIC_TIME_ZONE,
@@ -140,7 +142,7 @@ int NB::ready()
         ready = 0;
       } else {
         if (_response.endsWith("READY")) {
-          _readyState = READY_STATE_SET_HEX_MODE;
+          _readyState = READY_STATE_SET_PREFERRED_MESSAGE_FORMAT;
           ready = 0;
         } else if (_response.endsWith("SIM PIN")) {
           _readyState = READY_STATE_UNLOCK_SIM;
@@ -169,6 +171,25 @@ int NB::ready()
     }
 
     case READY_STATE_WAIT_UNLOCK_SIM_RESPONSE: {
+      if (ready > 1) {
+        _state = ERROR;
+        ready = 2;
+      } else {
+        _readyState = READY_STATE_SET_PREFERRED_MESSAGE_FORMAT;
+        ready = 0;
+      }
+
+      break;
+    }
+
+    case READY_STATE_SET_PREFERRED_MESSAGE_FORMAT: {
+      MODEM.send("AT+CMGF=1");
+      _readyState = READY_STATE_WAIT_SET_PREFERRED_MESSAGE_FORMAT_RESPONSE;
+      ready = 0;
+      break;
+    }
+
+    case READY_STATE_WAIT_SET_PREFERRED_MESSAGE_FORMAT_RESPONSE: {
       if (ready > 1) {
         _state = ERROR;
         ready = 2;
