@@ -1,7 +1,7 @@
 /*
  SMS sender
 
- This sketch, for the MKR NB 1500 board,sends an SMS message
+ This sketch, for the MKR NB 1500 board, sends an SMS message
  you enter in the serial monitor. Connect your Arduino with the
  SIM card, open the serial monitor, and wait for
  the "READY" message to appear in the monitor. Next, type a
