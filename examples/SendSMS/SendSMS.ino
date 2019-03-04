@@ -62,7 +62,7 @@ void loop() {
   readSerial(remoteNum);
   Serial.println(remoteNum);
 
-  // sms text
+  // SMS text
   Serial.print("Now, enter SMS content: ");
   char txtMsg[200];
   readSerial(txtMsg);
