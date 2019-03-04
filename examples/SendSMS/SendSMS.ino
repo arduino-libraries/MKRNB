@@ -58,7 +58,7 @@ void setup() {
 void loop() {
 
   Serial.print("Enter a mobile number: ");
-  char remoteNum[20];  // telephone number to send sms
+  char remoteNum[20];  // telephone number to send SMS
   readSerial(remoteNum);
   Serial.println(remoteNum);
 
