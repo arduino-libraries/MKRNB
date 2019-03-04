@@ -313,24 +313,6 @@ unsigned long NB::getLocalTime()
   return 0;
 }
 
-int NB::lowPowerMode()
-{
-  MODEM.send("AT+CPSMS=1");
-  if (MODEM.waitForResponse(40000) == 1) {
-    return true;
-  }
-  return false;
-}
-
-int NB::noLowPowerMode()
-{
-  MODEM.send("AT+CPSMS=0");
-  if (MODEM.waitForResponse(40000) == 1) {
-    return true;
-  }
-  return false;
-}
-
 NB_NetworkStatus_t NB::status()
 {
   return _state;

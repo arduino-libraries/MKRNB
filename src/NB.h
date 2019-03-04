@@ -71,9 +71,6 @@ public:
   unsigned long getTime();
   unsigned long getLocalTime();
 
-  int lowPowerMode();
-  int noLowPowerMode();
-
   NB_NetworkStatus_t status();
 
 private:

@@ -40,8 +40,6 @@ setPINUsed	KEYWORD2
 hostByName	KEYWORD2
 getTime	KEYWORD2
 getLocalTime	KEYWORD2
-lowPowerMode	KEYWORD2
-noLowPowerMode	KEYWORD2
 
 #######################################
 # Constants
