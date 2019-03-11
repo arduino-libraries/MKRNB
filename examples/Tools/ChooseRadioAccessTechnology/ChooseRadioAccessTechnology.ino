@@ -24,7 +24,7 @@
 
 */
 
-#include <Modem.h>
+#include <MKRNB.h>
 
 void setup() {
   Serial.begin(115200);
