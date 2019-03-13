@@ -296,6 +296,11 @@ unsigned long NB::getTime()
 
   struct tm now;
 
+  int dashIndex = response.lastIndexOf('-');
+  if (dashIndex != -1) {
+    response.remove(dashIndex);
+  }
+
   if (strptime(response.c_str(), "+CCLK: \"%y/%m/%d,%H:%M:%S", &now) != NULL) {
     // adjust for timezone offset which is +/- in 15 minute increments
 
