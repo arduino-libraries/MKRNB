@@ -24,6 +24,8 @@
 #include "NB.h"
 
 enum {
+  READY_STATE_SET_MINIMUM_FUNCTIONALITY_MODE,
+  READY_STATE_WAIT_SET_MINIMUM_FUNCTIONALITY_MODE,
   READY_STATE_CHECK_SIM,
   READY_STATE_WAIT_CHECK_SIM_RESPONSE,
   READY_STATE_UNLOCK_SIM,
@@ -34,6 +36,10 @@ enum {
   READY_STATE_WAIT_SET_HEX_MODE_RESPONSE,
   READY_STATE_SET_AUTOMATIC_TIME_ZONE,
   READY_STATE_WAIT_SET_AUTOMATIC_TIME_ZONE_RESPONSE,
+  READY_STATE_SET_APN,
+  READY_STATE_WAIT_SET_APN,
+  READY_STATE_SET_FULL_FUNCTIONALITY_MODE,
+  READY_STATE_WAIT_SET_FULL_FUNCTIONALITY_MODE,
   READY_STATE_CHECK_REGISTRATION,
   READY_STATE_WAIT_CHECK_REGISTRATION_RESPONSE,
   READY_STATE_DONE
@@ -43,6 +49,7 @@ NB::NB(bool debug) :
   _state(ERROR),
   _readyState(0),
   _pin(NULL),
+  _apn(""),
   _timeout(0)
 {
   if (debug) {
@@ -52,12 +59,18 @@ NB::NB(bool debug) :
 
 NB_NetworkStatus_t NB::begin(const char* pin, bool restart, bool synchronous)
 {
+  return begin(pin, "", restart, synchronous);
+}
+
+NB_NetworkStatus_t NB::begin(const char* pin, const char* apn, bool restart, bool synchronous)
+{
   if (!MODEM.begin(restart)) {
     _state = ERROR;
   } else {
     _pin = pin;
+    _apn = apn;
     _state = IDLE;
-    _readyState = READY_STATE_CHECK_SIM;
+    _readyState = READY_STATE_SET_MINIMUM_FUNCTIONALITY_MODE;
 
     if (synchronous) {
       unsigned long start = millis();
@@ -127,6 +140,25 @@ int NB::ready()
   MODEM.poll();
 
   switch (_readyState) {
+    case READY_STATE_SET_MINIMUM_FUNCTIONALITY_MODE: {
+      MODEM.send("AT+CFUN=0");
+      _readyState = READY_STATE_WAIT_SET_MINIMUM_FUNCTIONALITY_MODE;
+      ready = 0;
+      break;
+    }
+
+    case READY_STATE_WAIT_SET_MINIMUM_FUNCTIONALITY_MODE:{
+      if (ready > 1) {
+        _state = ERROR;
+        ready = 2;
+      } else {
+        _readyState = READY_STATE_CHECK_SIM;
+        ready = 0;
+      }
+
+      break;
+    }
+
     case READY_STATE_CHECK_SIM: {
       MODEM.setResponseDataStorage(&_response);
       MODEM.send("AT+CPIN?");
@@ -232,9 +264,46 @@ int NB::ready()
         _state = ERROR;
         ready = 2;
       } else {
+        _readyState = READY_STATE_SET_APN;
+        ready = 0;
+      }
+      break;
+    }
+
+    case READY_STATE_SET_APN: {
+      MODEM.sendf("AT+CGDCONT=1,\"IP\",\"%s\"", _apn);
+      _readyState = READY_STATE_WAIT_SET_APN;
+      ready = 0;
+      break;
+    }
+
+    case READY_STATE_WAIT_SET_APN: {
+      if (ready > 1) {
+        _state = ERROR;
+        ready = 2;
+      } else {
+        _readyState = READY_STATE_SET_FULL_FUNCTIONALITY_MODE;
+        ready = 0;
+      }
+      break;
+    }
+
+    case READY_STATE_SET_FULL_FUNCTIONALITY_MODE: {
+      MODEM.send("AT+CFUN=1");
+      _readyState = READY_STATE_WAIT_SET_FULL_FUNCTIONALITY_MODE;
+      ready = 0;
+      break;
+    }
+
+    case READY_STATE_WAIT_SET_FULL_FUNCTIONALITY_MODE:{
+      if (ready > 1) {
+        _state = ERROR;
+        ready = 2;
+      } else {
         _readyState = READY_STATE_CHECK_REGISTRATION;
         ready = 0;
       }
+
       break;
     }
   

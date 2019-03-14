@@ -35,6 +35,7 @@ public:
   /** Start the NB IoT modem, attaching to the NB IoT or LTE Cat M1 network
       @param pin         SIM PIN number (4 digits in a string, example: "1234"). If
                          NULL the SIM has no configured PIN.
+      @param apn         (optional) APN to use
       @param restart     Restart the modem. Default is TRUE. The modem receives
                          a signal through the Ctrl/D7 pin. If it is shut down, it will
                          start-up. If it is running, it will restart. Takes up to 10
@@ -45,6 +46,7 @@ public:
       @return If synchronous, NB_NetworkStatus_t. If asynchronous, returns 0.
     */
   NB_NetworkStatus_t begin(const char* pin = 0, bool restart = true, bool synchronous = true);
+  NB_NetworkStatus_t begin(const char* pin, const char* apn, bool restart = true, bool synchronous = true);
 
   /** Check network access status
       @return 1 if Alive, 0 if down
@@ -77,6 +79,7 @@ private:
   NB_NetworkStatus_t _state;
   int _readyState;
   const char* _pin;
+  const char* _apn;
   String _response;
   unsigned long _timeout;
 };
