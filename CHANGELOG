@@ -1,4 +1,12 @@
-MKRNB 1.0.0 - ????.??.??
+MKRNB 0.0.0 - ????.??.??
+
+MKRNB 1.2.0 - 2019.03.26
+
+* SerialSARAPassthrough example: Enabled the POW_ON pin in setup()
+* Fixed result of NB::getTime()
+* Added optional parameter to NB::begin(...) to set the APN to use for registration
+* Added MODEM.setBaudRate(...) and MODEM.debug(print) and API's
+* Added Amazon Root CA 1
 
 MKRNB 1.1.0 - 2019.03.04
 
