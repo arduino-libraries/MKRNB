@@ -21,8 +21,8 @@
 
 #define MODEM_MIN_RESPONSE_OR_URC_WAIT_TIME_MS 20
 
-bool ModemClass::_debug = false;
 ModemUrcHandler* ModemClass::_urcHandlers[MAX_URC_HANDLERS] = { NULL };
+Print* ModemClass::_debugPrint = NULL;
 
 ModemClass::ModemClass(Uart& uart, unsigned long baud, int resetPin, int powerOnPin) :
   _uart(&uart),
@@ -93,12 +93,17 @@ void ModemClass::end()
 
 void ModemClass::debug()
 {
-  _debug = true;
+  debug(Serial);
+}
+
+void ModemClass::debug(Print& p)
+{
+  _debugPrint = &p;
 }
 
 void ModemClass::noDebug()
 {
-  _debug = false;
+  _debugPrint = NULL;
 }
 
 int ModemClass::autosense(unsigned long timeout)
@@ -183,8 +188,8 @@ int ModemClass::waitForPrompt(unsigned long timeout)
   for (unsigned long start = millis(); (millis() - start) < timeout;) {
     while (_uart->available()) {
       char c = _uart->read();
-      if (_debug) {
-        Serial.print(c);
+      if (_debugPrint) {
+        _debugPrint->print(c);
       }
 
       _buffer += c;
@@ -226,8 +231,8 @@ void ModemClass::poll()
   while (_uart->available()) {
     char c = _uart->read();
 
-    if (_debug) {
-      Serial.write(c);
+    if (_debugPrint) {
+      _debugPrint->write(c);
     }
 
     _buffer += c;

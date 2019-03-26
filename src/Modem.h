@@ -38,6 +38,7 @@ public:
   void end();
 
   void debug();
+  void debug(Print& p);
   void noDebug();
 
   int autosense(unsigned long timeout = 10000);
@@ -79,8 +80,8 @@ private:
   String* _responseDataStorage;
 
   #define MAX_URC_HANDLERS 8 // 7 sockets + GPRS
-  static bool _debug;
   static ModemUrcHandler* _urcHandlers[MAX_URC_HANDLERS];
+  static Print* _debugPrint;
 };
 
 extern ModemClass MODEM;
