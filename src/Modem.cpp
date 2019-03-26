@@ -334,4 +334,9 @@ void ModemClass::removeUrcHandler(ModemUrcHandler* handler)
   }
 }
 
+void ModemClass::setBaudRate(unsigned long baud)
+{
+  _baud = baud;
+}
+
 ModemClass MODEM(SerialSARA, 115200, SARA_RESETN, SARA_PWR_ON);
