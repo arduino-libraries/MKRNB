@@ -40,6 +40,8 @@ enum {
   READY_STATE_WAIT_SET_AUTOMATIC_TIME_ZONE_RESPONSE,
   READY_STATE_SET_APN,
   READY_STATE_WAIT_SET_APN,
+  READY_STATE_SET_APN_AUTH,
+  READY_STATE_WAIT_SET_APN_AUTH,
   READY_STATE_SET_FULL_FUNCTIONALITY_MODE,
   READY_STATE_WAIT_SET_FULL_FUNCTIONALITY_MODE,
   READY_STATE_CHECK_REGISTRATION,
@@ -52,6 +54,8 @@ NB::NB(bool debug) :
   _readyState(0),
   _pin(NULL),
   _apn(""),
+  _username(""),
+  _password(""),
   _timeout(0)
 {
   if (debug) {
@@ -66,11 +70,18 @@ NB_NetworkStatus_t NB::begin(const char* pin, bool restart, bool synchronous)
 
 NB_NetworkStatus_t NB::begin(const char* pin, const char* apn, bool restart, bool synchronous)
 {
+  return begin(pin, apn, "", "", restart, synchronous);
+}
+
+NB_NetworkStatus_t NB::begin(const char* pin, const char* apn, const char* username, const char* password, bool restart, bool synchronous)
+{
   if (!MODEM.begin(restart)) {
     _state = ERROR;
   } else {
     _pin = pin;
     _apn = apn;
+    _username = username,
+    _password = password;
     _state = IDLE;
     _readyState = READY_STATE_SET_MINIMUM_FUNCTIONALITY_MODE;
 
@@ -299,6 +310,31 @@ int NB::ready()
     }
 
     case READY_STATE_WAIT_SET_APN: {
+      if (ready > 1) {
+        _state = ERROR;
+        ready = 2;
+      } else {
+        _readyState = READY_STATE_SET_APN_AUTH;
+        ready = 0;
+      }
+      break;
+    }
+
+    case READY_STATE_SET_APN_AUTH: {
+      if (strlen(_username) > 0 || strlen(_password) > 0) {
+        // CHAP
+        MODEM.sendf("AT+UAUTHREQ=1,2,\"%s\",\"%s\"", _password, _username);
+      } else {
+        // no auth
+        MODEM.sendf("AT+UAUTHREQ=1,%d", 0);
+      }
+
+      _readyState = READY_STATE_WAIT_SET_APN_AUTH;
+      ready = 0;
+      break;
+    }
+
+    case READY_STATE_WAIT_SET_APN_AUTH: {
       if (ready > 1) {
         _state = ERROR;
         ready = 2;
