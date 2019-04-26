@@ -106,6 +106,21 @@ void ModemClass::noDebug()
   _debugPrint = NULL;
 }
 
+void ModemClass::debugf(const char *fmt, ...)
+{
+  if (NULL == _debugPrint)
+    return;
+
+  char buf[BUFSIZ];
+
+  va_list ap;
+  va_start((ap), (fmt));
+  vsnprintf(buf, sizeof(buf) - 1, fmt, ap);
+  va_end(ap);
+
+  _debugPrint->print(buf);
+}
+
 int ModemClass::autosense(unsigned long timeout)
 {
   for (unsigned long start = millis(); (millis() - start) < timeout;) {

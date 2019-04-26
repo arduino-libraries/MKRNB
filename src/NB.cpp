@@ -66,6 +66,8 @@ NB_NetworkStatus_t NB::begin(const char* pin, bool restart, bool synchronous)
 
 NB_NetworkStatus_t NB::begin(const char* pin, const char* apn, bool restart, bool synchronous)
 {
+  MODEM.debugf("NB::begin: pin='%s', apn='%s'\n", pin, apn);
+
   if (!MODEM.begin(restart)) {
     _state = ERROR;
   } else {

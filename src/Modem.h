@@ -40,6 +40,7 @@ public:
   void debug();
   void debug(Print& p);
   void noDebug();
+  void debugf(const char *s, ...);
 
   int autosense(unsigned long timeout = 10000);
 
