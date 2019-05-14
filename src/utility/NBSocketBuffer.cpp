@@ -62,7 +62,9 @@ int NBSocketBufferClass::available(int socket)
     MODEM.sendf("AT+USORD=%d,%d", socket, NB_SOCKET_BUFFER_SIZE);
     int status = MODEM.waitForResponse(10000, &response);
     if (status != 1) {
-      if (status == 4 && response.indexOf("Operation not allowed") != -1 ) {
+      if (status == 2) {
+        return -1;
+      } else if (status == 4 && response.indexOf("Operation not allowed") != -1 ) {
         return -1;
       } else {
         return 0;

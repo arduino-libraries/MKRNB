@@ -24,6 +24,8 @@
 #include "NB.h"
 
 enum {
+  READY_STATE_SET_ERROR_DISABLED,
+  READY_STATE_WAIT_SET_ERROR_DISABLED,
   READY_STATE_SET_MINIMUM_FUNCTIONALITY_MODE,
   READY_STATE_WAIT_SET_MINIMUM_FUNCTIONALITY_MODE,
   READY_STATE_DETACH_DATA,
@@ -72,7 +74,7 @@ NB_NetworkStatus_t NB::begin(const char* pin, const char* apn, bool restart, boo
     _pin = pin;
     _apn = apn;
     _state = IDLE;
-    _readyState = READY_STATE_SET_MINIMUM_FUNCTIONALITY_MODE;
+    _readyState = READY_STATE_SET_ERROR_DISABLED;
 
     if (synchronous) {
       unsigned long start = millis();
@@ -142,6 +144,25 @@ int NB::ready()
   MODEM.poll();
 
   switch (_readyState) {
+    case READY_STATE_SET_ERROR_DISABLED: {
+      MODEM.send("AT+CMEE=0");
+      _readyState = READY_STATE_WAIT_SET_ERROR_DISABLED;
+      ready = 0;
+      break;
+    }
+  
+    case READY_STATE_WAIT_SET_ERROR_DISABLED: {
+      if (ready > 1) {
+        _state = ERROR;
+        ready = 2;
+      } else {
+        _readyState = READY_STATE_SET_MINIMUM_FUNCTIONALITY_MODE;
+        ready = 0;
+      }
+      
+      break;
+    }
+
     case READY_STATE_SET_MINIMUM_FUNCTIONALITY_MODE: {
       MODEM.send("AT+CFUN=0");
       _readyState = READY_STATE_WAIT_SET_MINIMUM_FUNCTIONALITY_MODE;
