@@ -25,7 +25,8 @@
 
 enum {
   SSL_CLIENT_STATE_LOAD_ROOT_CERT,
-  SSL_CLIENT_STATE_WAIT_LOAD_ROOT_CERT_RESPONSE
+  SSL_CLIENT_STATE_WAIT_LOAD_ROOT_CERT_RESPONSE,
+  SSL_CLIENT_STATE_WAIT_DELETE_ROOT_CERT_RESPONSE
 };
 
 bool NBSSLClient::_rootCertsLoaded = false;
@@ -54,15 +55,23 @@ int NBSSLClient::ready()
 
   switch (_state) {
     case SSL_CLIENT_STATE_LOAD_ROOT_CERT: {
-      // load the next root cert
-      MODEM.sendf("AT+USECMNG=0,0,\"%s\",%d", NB_ROOT_CERTS[_certIndex].name, NB_ROOT_CERTS[_certIndex].size);
-      if (MODEM.waitForPrompt() != 1) {
-        // failure
-        ready = -1;
+      if (NB_ROOT_CERTS[_certIndex].size) {
+        // load the next root cert
+        MODEM.sendf("AT+USECMNG=0,0,\"%s\",%d", NB_ROOT_CERTS[_certIndex].name, NB_ROOT_CERTS[_certIndex].size);
+        if (MODEM.waitForPrompt() != 1) {
+          // failure
+          ready = -1;
+        } else {
+          // send the cert contents
+          MODEM.write(NB_ROOT_CERTS[_certIndex].data, NB_ROOT_CERTS[_certIndex].size);
+          _state = SSL_CLIENT_STATE_WAIT_LOAD_ROOT_CERT_RESPONSE;
+          ready = 0;
+        }
       } else {
-        // send the cert contents
-        MODEM.write(NB_ROOT_CERTS[_certIndex].data, NB_ROOT_CERTS[_certIndex].size);
-        _state = SSL_CLIENT_STATE_WAIT_LOAD_ROOT_CERT_RESPONSE;
+        // remove the next root cert name
+        MODEM.sendf("AT+USECMNG=2,0,\"%s\"", NB_ROOT_CERTS[_certIndex].name);
+
+        _state = SSL_CLIENT_STATE_WAIT_DELETE_ROOT_CERT_RESPONSE;
         ready = 0;
       }
       break;
@@ -82,6 +91,22 @@ int NBSSLClient::ready()
         }
         ready = 0;
       }
+      break;
+    }
+
+    case SSL_CLIENT_STATE_WAIT_DELETE_ROOT_CERT_RESPONSE: {
+      // ignore ready response, root cert might not exist
+      _certIndex++;
+
+      if (_certIndex == NB_NUM_ROOT_CERTS) {
+        // all certs loaded
+        _rootCertsLoaded = true;
+      } else {
+        // load next
+        _state = SSL_CLIENT_STATE_LOAD_ROOT_CERT;
+      }
+
+      ready = 0;
       break;
     }
   }
