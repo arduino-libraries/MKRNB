@@ -1,6 +1,10 @@
 MKRNB 0.0.0 - ????.??.??
 
-MKRNB 1.3.0 - 2019.04.15
+MKRNB 1.3.1 - 2019.05.17
+
+* Fixed issues with NB::begin(...) failing for SIMs that required a PIN
+
+MKRNB 1.3.0 - 2019.05.15
 
 * Added optional parameters to NB::begin(...) to set the APN to username/password for registration
 * Replaced bundled "Amazon Root CA 1" root certificate with "Starfield Services Root Certificate Authority - G2 root CA"
