@@ -28,12 +28,12 @@ enum {
   READY_STATE_WAIT_SET_ERROR_DISABLED,
   READY_STATE_SET_MINIMUM_FUNCTIONALITY_MODE,
   READY_STATE_WAIT_SET_MINIMUM_FUNCTIONALITY_MODE,
-  READY_STATE_DETACH_DATA,
-  READY_STATE_WAIT_DETACH_DATA,
   READY_STATE_CHECK_SIM,
   READY_STATE_WAIT_CHECK_SIM_RESPONSE,
   READY_STATE_UNLOCK_SIM,
   READY_STATE_WAIT_UNLOCK_SIM_RESPONSE,
+  READY_STATE_DETACH_DATA,
+  READY_STATE_WAIT_DETACH_DATA,
   READY_STATE_SET_PREFERRED_MESSAGE_FORMAT,
   READY_STATE_WAIT_SET_PREFERRED_MESSAGE_FORMAT_RESPONSE,
   READY_STATE_SET_HEX_MODE,
@@ -186,25 +186,6 @@ int NB::ready()
         _state = ERROR;
         ready = 2;
       } else {
-        _readyState = READY_STATE_DETACH_DATA;
-        ready = 0;
-      }
-
-      break;
-    }
-
-    case READY_STATE_DETACH_DATA: {
-      MODEM.send("AT+CGATT=0");
-      _readyState = READY_STATE_WAIT_DETACH_DATA;
-      ready = 0;
-      break;
-    }
-
-    case READY_STATE_WAIT_DETACH_DATA:{
-      if (ready > 1) {
-        _state = ERROR;
-        ready = 2;
-      } else {
         _readyState = READY_STATE_CHECK_SIM;
         ready = 0;
       }
@@ -256,6 +237,25 @@ int NB::ready()
     }
 
     case READY_STATE_WAIT_UNLOCK_SIM_RESPONSE: {
+      if (ready > 1) {
+        _state = ERROR;
+        ready = 2;
+      } else {
+        _readyState = READY_STATE_DETACH_DATA;
+        ready = 0;
+      }
+
+      break;
+    }
+
+    case READY_STATE_DETACH_DATA: {
+      MODEM.send("AT+CGATT=0");
+      _readyState = READY_STATE_WAIT_DETACH_DATA;
+      ready = 0;
+      break;
+    }
+
+    case READY_STATE_WAIT_DETACH_DATA:{
       if (ready > 1) {
         _state = ERROR;
         ready = 2;
