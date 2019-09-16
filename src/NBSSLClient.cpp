@@ -32,6 +32,13 @@ enum {
 bool NBSSLClient::_rootCertsLoaded = false;
 
 NBSSLClient::NBSSLClient(bool synch) :
+  NBSSLClient(NB_ROOT_CERTS, NB_NUM_ROOT_CERTS, synch)
+{
+}
+
+NBSSLClient::NBSSLClient(const NBRootCert* myRCs, int myNumRCs, bool synch) :
+  _RCs(myRCs),
+  _numRCs(myNumRCs),
   NBClient(synch)
 {
 }
@@ -55,21 +62,21 @@ int NBSSLClient::ready()
 
   switch (_state) {
     case SSL_CLIENT_STATE_LOAD_ROOT_CERT: {
-      if (NB_ROOT_CERTS[_certIndex].size) {
+      if (_RCs[_certIndex].size) {
         // load the next root cert
-        MODEM.sendf("AT+USECMNG=0,0,\"%s\",%d", NB_ROOT_CERTS[_certIndex].name, NB_ROOT_CERTS[_certIndex].size);
+        MODEM.sendf("AT+USECMNG=0,0,\"%s\",%d", _RCs[_certIndex].name, _RCs[_certIndex].size);
         if (MODEM.waitForPrompt() != 1) {
           // failure
           ready = -1;
         } else {
           // send the cert contents
-          MODEM.write(NB_ROOT_CERTS[_certIndex].data, NB_ROOT_CERTS[_certIndex].size);
+          MODEM.write(_RCs[_certIndex].data, _RCs[_certIndex].size);
           _state = SSL_CLIENT_STATE_WAIT_LOAD_ROOT_CERT_RESPONSE;
           ready = 0;
         }
       } else {
         // remove the next root cert name
-        MODEM.sendf("AT+USECMNG=2,0,\"%s\"", NB_ROOT_CERTS[_certIndex].name);
+        MODEM.sendf("AT+USECMNG=2,0,\"%s\"", _RCs[_certIndex].name);
 
         _state = SSL_CLIENT_STATE_WAIT_DELETE_ROOT_CERT_RESPONSE;
         ready = 0;
@@ -82,7 +89,7 @@ int NBSSLClient::ready()
         // error
       } else {
         _certIndex++;
-        if (_certIndex == NB_NUM_ROOT_CERTS) {
+        if (_certIndex == _numRCs) {
           // all certs loaded
           _rootCertsLoaded = true;
         } else {
@@ -98,7 +105,7 @@ int NBSSLClient::ready()
       // ignore ready response, root cert might not exist
       _certIndex++;
 
-      if (_certIndex == NB_NUM_ROOT_CERTS) {
+      if (_certIndex == _numRCs) {
         // all certs loaded
         _rootCertsLoaded = true;
       } else {

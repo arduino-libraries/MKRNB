@@ -21,11 +21,13 @@
 #define _NB_SSL_CLIENT_H_INCLUDED
 
 #include "NBClient.h"
+#include "utility/NBRootCerts.h"
 
 class NBSSLClient : public NBClient {
 
 public:
   NBSSLClient(bool synch = true);
+  NBSSLClient(const NBRootCert* myRCs, int myNumRCs, bool synch = true);
   virtual ~NBSSLClient();
 
   virtual int ready();
@@ -34,6 +36,8 @@ public:
   virtual int connect(const char* host, uint16_t port);
 
   private:
+    const NBRootCert* _RCs;
+    int _numRCs;
     static bool _rootCertsLoaded;
     int _certIndex;
     int _state;
