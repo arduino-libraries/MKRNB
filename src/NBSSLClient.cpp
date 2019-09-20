@@ -29,17 +29,22 @@ enum {
   SSL_CLIENT_STATE_WAIT_DELETE_ROOT_CERT_RESPONSE
 };
 
-bool NBSSLClient::_rootCertsLoaded = false;
+bool NBSSLClient::_defaultRootCertsLoaded = false;
 
 NBSSLClient::NBSSLClient(bool synch) :
-  NBSSLClient(NB_ROOT_CERTS, NB_NUM_ROOT_CERTS, synch)
+  NBClient(synch),
+  _RCs(NB_ROOT_CERTS),
+  _numRCs(NB_NUM_ROOT_CERTS),
+  _customRootCerts(false)
 {
 }
 
 NBSSLClient::NBSSLClient(const NBRootCert* myRCs, int myNumRCs, bool synch) :
+  NBClient(synch),
   _RCs(myRCs),
   _numRCs(myNumRCs),
-  NBClient(synch)
+  _customRootCerts(true),
+  _customRootCertsLoaded(false)
 {
 }
 
@@ -49,7 +54,7 @@ NBSSLClient::~NBSSLClient()
 
 int NBSSLClient::ready()
 {
-  if (_rootCertsLoaded) {
+  if (_defaultRootCertsLoaded || (_customRootCerts && (_numRCs == 0 || _customRootCertsLoaded))) {
     // root certs loaded already, continue to regular NBClient
     return NBClient::ready();
   }
@@ -88,32 +93,14 @@ int NBSSLClient::ready()
       if (ready > 1) {
         // error
       } else {
-        _certIndex++;
-        if (_certIndex == _numRCs) {
-          // all certs loaded
-          _rootCertsLoaded = true;
-        } else {
-          // load next
-          _state = SSL_CLIENT_STATE_LOAD_ROOT_CERT;
-        }
-        ready = 0;
+        ready = iterateCerts();
       }
       break;
     }
 
     case SSL_CLIENT_STATE_WAIT_DELETE_ROOT_CERT_RESPONSE: {
       // ignore ready response, root cert might not exist
-      _certIndex++;
-
-      if (_certIndex == _numRCs) {
-        // all certs loaded
-        _rootCertsLoaded = true;
-      } else {
-        // load next
-        _state = SSL_CLIENT_STATE_LOAD_ROOT_CERT;
-      }
-
-      ready = 0;
+      ready = iterateCerts();
       break;
     }
   }
@@ -135,4 +122,21 @@ int NBSSLClient::connect(const char* host, uint16_t port)
   _state = SSL_CLIENT_STATE_LOAD_ROOT_CERT;
 
   return connectSSL(host, port);
+}
+
+int NBSSLClient::iterateCerts()
+{
+  _certIndex++;
+  if (_certIndex == _numRCs) {
+    // all certs loaded
+    if (_customRootCerts) {
+      _customRootCertsLoaded = true;
+    } else {
+      _defaultRootCertsLoaded = true;
+    }
+  } else {
+    // load next
+    _state = SSL_CLIENT_STATE_LOAD_ROOT_CERT;
+  }
+  return 0;
 }

@@ -31,6 +31,7 @@ public:
   virtual ~NBSSLClient();
 
   virtual int ready();
+  virtual int iterateCerts();
 
   virtual int connect(IPAddress ip, uint16_t port);
   virtual int connect(const char* host, uint16_t port);
@@ -38,7 +39,9 @@ public:
   private:
     const NBRootCert* _RCs;
     int _numRCs;
-    static bool _rootCertsLoaded;
+    static bool _defaultRootCertsLoaded;
+    bool _customRootCerts;
+    bool _customRootCertsLoaded;
     int _certIndex;
     int _state;
 };
