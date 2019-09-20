@@ -54,7 +54,8 @@ NBSSLClient::~NBSSLClient()
 
 int NBSSLClient::ready()
 {
-  if (_defaultRootCertsLoaded || (_customRootCerts && (_numRCs == 0 || _customRootCertsLoaded))) {
+  if ((!_customRootCerts && _defaultRootCertsLoaded) ||
+      (_customRootCerts && (_numRCs == 0 || _customRootCertsLoaded))) {
     // root certs loaded already, continue to regular NBClient
     return NBClient::ready();
   }
