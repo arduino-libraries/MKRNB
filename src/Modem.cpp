@@ -266,22 +266,35 @@ void ModemClass::poll()
       case AT_RECEIVING_RESPONSE: {
         if (c == '\n') {
           _lastResponseOrUrcMillis = millis();
-          int responseResultIndex;
 
-          responseResultIndex = _buffer.lastIndexOf("OK\r\n");
+          int endOfResponse = 0;
+          if (_buffer.startsWith("+CMGL: ")) {
+            // SMS responses can contain "OK\r\n"
+            for(int nextSMS = 0; nextSMS != -1; nextSMS = _buffer.indexOf("+CMGL: ",endOfResponse)) {
+              // First line is SMS info
+              nextSMS = _buffer.indexOf("\r\n",nextSMS);
+              // Second line is SMS content
+              endOfResponse = _buffer.indexOf("\r\n",nextSMS);
+              if (endOfResponse == -1) {
+                // Not yet complete SMS
+                break;
+              }
+            }
+          }
 
+          int responseResultIndex = _buffer.lastIndexOf("OK\r\n",endOfResponse);
           if (responseResultIndex != -1) {
             _ready = 1;
           } else {
-            responseResultIndex = _buffer.lastIndexOf("ERROR\r\n");
+            responseResultIndex = _buffer.lastIndexOf("ERROR\r\n",endOfResponse);
             if (responseResultIndex != -1) {
               _ready = 2;
             } else {
-              responseResultIndex = _buffer.lastIndexOf("NO CARRIER\r\n");
+              responseResultIndex = _buffer.lastIndexOf("NO CARRIER\r\n",endOfResponse);
               if (responseResultIndex != -1) {
                 _ready = 3;
               } else {
-                responseResultIndex = _buffer.lastIndexOf("CME ERROR");
+                responseResultIndex = _buffer.lastIndexOf("CME ERROR",endOfResponse);
                 if (responseResultIndex != -1) {
                   _ready = 4;
                 }
