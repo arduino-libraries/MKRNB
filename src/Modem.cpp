@@ -282,20 +282,22 @@ void ModemClass::poll()
             }
           }
 
-          int responseResultIndex = _buffer.lastIndexOf("OK\r\n",endOfResponse);
-          if (responseResultIndex != -1) {
+          int responseResultIndex;
+
+	  responseResultIndex = _buffer.lastIndexOf("OK\r\n");
+          if (responseResultIndex >= endOfResponse) {
             _ready = 1;
           } else {
-            responseResultIndex = _buffer.lastIndexOf("ERROR\r\n",endOfResponse);
-            if (responseResultIndex != -1) {
+            responseResultIndex = _buffer.lastIndexOf("ERROR\r\n");
+            if (responseResultIndex >= endOfResponse) {
               _ready = 2;
             } else {
-              responseResultIndex = _buffer.lastIndexOf("NO CARRIER\r\n",endOfResponse);
-              if (responseResultIndex != -1) {
+              responseResultIndex = _buffer.lastIndexOf("NO CARRIER\r\n");
+              if (responseResultIndex >= endOfResponse) {
                 _ready = 3;
               } else {
-                responseResultIndex = _buffer.lastIndexOf("CME ERROR",endOfResponse);
-                if (responseResultIndex != -1) {
+                responseResultIndex = _buffer.lastIndexOf("CME ERROR");
+                if (responseResultIndex >= endOfResponse) {
                   _ready = 4;
                 }
               }
