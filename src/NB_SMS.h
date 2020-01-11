@@ -85,6 +85,8 @@ private:
   int _smsDataIndex;
   int _smsDataEndIndex;
   bool _smsTxActive;
+  char _bufferUTF8[4];
+  int _indexUTF8;
 };
 
 #endif
