@@ -85,9 +85,11 @@ private:
   int _smsDataIndex;
   int _smsDataEndIndex;
   bool _smsTxActive;
+#ifndef NO_SMS_CHARSET
   char _bufferUTF8[4];
   int _indexUTF8;
   const char* _ptrUTF8;
+#endif
 };
 
 #endif

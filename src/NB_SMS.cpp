@@ -28,12 +28,14 @@ enum {
 };
 
 NB_SMS::NB_SMS(bool synch) :
-  _synch(synch),
-  _state(SMS_STATE_IDLE),
-  _smsTxActive(false),
+#ifndef NO_SMS_CHARSET
   _bufferUTF8({0,0,0,0}),
   _indexUTF8(0),
-  _ptrUTF8("")
+  _ptrUTF8(""),
+#endif
+  _synch(synch),
+  _state(SMS_STATE_IDLE),
+  _smsTxActive(false)
 {
 }
 
