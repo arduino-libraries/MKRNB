@@ -32,7 +32,8 @@ NB_SMS::NB_SMS(bool synch) :
   _state(SMS_STATE_IDLE),
   _smsTxActive(false),
   _bufferUTF8({0,0,0,0}),
-  _indexUTF8(0)
+  _indexUTF8(0),
+  _ptrUTF8("")
 {
 }
 
@@ -105,10 +106,7 @@ size_t NB_SMS::write(uint8_t c)
           }
         }
         // No match, echo buffer
-        c=0;
-        while (c < _indexUTF8) {
-          MODEM.write(_bufferUTF8[c]);
-        }
+        for (c=0; c < _indexUTF8; MODEM.write(_bufferUTF8[c++]));
         _indexUTF8=0;
       }
       return 1;
@@ -323,6 +321,9 @@ void NB_SMS::flush()
 {
   int smsIndexEnd = _incomingBuffer.indexOf(',');
 
+#ifndef NO_SMS_CHARSET
+  _ptrUTF8 = "";
+#endif
   if (smsIndexEnd != -1) {
     while (MODEM.ready() == 0);
 

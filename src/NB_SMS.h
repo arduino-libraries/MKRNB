@@ -87,7 +87,7 @@ private:
   bool _smsTxActive;
   char _bufferUTF8[4];
   int _indexUTF8;
-  char* _ptrUTF8;
+  const char* _ptrUTF8;
 };
 
 #endif
