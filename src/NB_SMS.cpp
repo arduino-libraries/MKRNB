@@ -131,7 +131,6 @@ int NB_SMS::beginSMS(const char* to)
 
 #ifndef NO_SMS_CHARSET
   _indexUTF8=0;
-  _bufferUTF8[0]=0;
 #endif
   _smsTxActive = true;
 
@@ -173,10 +172,6 @@ int NB_SMS::endSMS()
 {
   int r;
 
-#ifndef NO_SMS_CHARSET
-  _indexUTF8=0;
-  _bufferUTF8[0]=0;
-#endif
   if (_smsTxActive) {
     MODEM.write(26);
 
@@ -274,19 +269,16 @@ int NB_SMS::remoteNumber(char* number, int nlength)
 int NB_SMS::read()
 {
 #ifndef NO_SMS_CHARSET
-  if (_indexUTF8 < 4 && _bufferUTF8[_indexUTF8] != 0) {
-    return _bufferUTF8[_indexUTF8++];
+  if (*_ptrUTF8 != 0) {
+    return *_ptrUTF8++;
   }
-  int bufferLength = _incomingBuffer.length();
-
-  if (_smsDataIndex < bufferLength && _smsDataIndex <= _smsDataEndIndex) {
+  if (_smsDataIndex < _incomingBuffer.length() && _smsDataIndex <= _smsDataEndIndex) {
     char c = _incomingBuffer[_smsDataIndex++];
     if (c <= 0x24 || c >= 0x80 || (c&0x1F) == 0 || (c&0x1F) >= 0x1B) {
       for (auto &smschar : _smsUTF8map) {
         if (c == smschar.smsc) {
-          strncpy(_bufferUTF8, smschar.utf8,4);
-          _indexUTF8 = 1;
-          return _bufferUTF8[0];
+          _ptrUTF8=smschar.utf8;
+          return *_ptrUTF8++;
         }
       }
     }
@@ -304,8 +296,24 @@ int NB_SMS::read()
 
 int NB_SMS::peek()
 {
+#ifndef NO_SMS_CHARSET
+  if (*_ptrUTF8 != 0) {
+    return *_ptrUTF8;
+  }
+  if (_smsDataIndex < _incomingBuffer.length() && _smsDataIndex <= _smsDataEndIndex) {
+    char c = _incomingBuffer[_smsDataIndex];
+    if (c <= 0x24 || c >= 0x80 || (c&0x1F) == 0 || (c&0x1F) >= 0x1B) {
+      for (auto &smschar : _smsUTF8map) {
+        if (c == smschar.smsc) {
+          return smschar.utf8[0];
+        }
+      }
+    }
+    return c;
+#else
   if (_smsDataIndex < (int)_incomingBuffer.length() && _smsDataIndex <= _smsDataEndIndex) {
     return _incomingBuffer[_smsDataIndex];
+#endif
   }
 
   return -1;
