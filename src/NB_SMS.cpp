@@ -107,7 +107,7 @@ size_t NB_SMS::write(uint8_t c)
             return MODEM.write(smschar.smsc);
           }
         }
-        // No match, echo buffer
+        // No utf8 match, echo buffer
         for (c=0; c < _indexUTF8; MODEM.write(_bufferUTF8[c++]));
         _indexUTF8=0;
       }
@@ -173,6 +173,11 @@ int NB_SMS::endSMS()
   int r;
 
   if (_smsTxActive) {
+#ifndef NO_SMS_CHARSET
+    // No utf8 match, echo buffer
+    for (r=0; r < _indexUTF8; MODEM.write(_bufferUTF8[r++]));
+    _indexUTF8=0;
+#endif
     MODEM.write(26);
 
     if (_synch) {
