@@ -46,6 +46,10 @@ enum {
   READY_STATE_WAIT_SET_APN_AUTH,
   READY_STATE_SET_FULL_FUNCTIONALITY_MODE,
   READY_STATE_WAIT_SET_FULL_FUNCTIONALITY_MODE,
+#ifndef NO_SMS_CHARSET
+  READY_STATE_SET_CHARSET,
+  READY_STATE_WAIT_SET_CHARSET,
+#endif
   READY_STATE_CHECK_REGISTRATION,
   READY_STATE_WAIT_CHECK_REGISTRATION_RESPONSE,
   READY_STATE_DONE
@@ -376,13 +380,34 @@ int NB::ready()
         _state = ERROR;
         ready = 2;
       } else {
-        _readyState = READY_STATE_CHECK_REGISTRATION;
+#ifndef NO_SMS_CHARSET
+        _readyState = READY_STATE_SET_CHARSET;
         ready = 0;
       }
 
       break;
     }
   
+    case READY_STATE_SET_CHARSET: {
+      MODEM.send("AT+CSCS=\"GSM\"");
+      _readyState = READY_STATE_WAIT_SET_CHARSET;
+      ready = 0;
+      break;
+    }
+
+    case READY_STATE_WAIT_SET_CHARSET:{
+      if (ready > 1) {
+        _state = ERROR;
+        ready = 2;
+      } else {
+#endif
+        _readyState = READY_STATE_CHECK_REGISTRATION;
+        ready = 0;
+      }
+
+      break;
+    }
+
     case READY_STATE_CHECK_REGISTRATION: {
       MODEM.setResponseDataStorage(&_response);
       MODEM.send("AT+CEREG?");
