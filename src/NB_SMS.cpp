@@ -102,7 +102,7 @@ size_t NB_SMS::write(uint8_t c)
           || (_indexUTF8==3 && (_bufferUTF8[0]&0xF0) == 0xE0)
           || _indexUTF8==4) {
         for (auto &smschar : _smsUTF8map) {
-          if (strncmp(_bufferUTF8, smschar.utf8, _indexUTF8)!=0) {
+          if (strncmp(_bufferUTF8, smschar.utf8, _indexUTF8)==0) {
             _indexUTF8=0;
             return MODEM.write(smschar.smsc);
           }
