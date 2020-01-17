@@ -207,7 +207,7 @@ void NB_SMS::flush()
   int smsIndexStart = _incomingBuffer.indexOf(' ');
   int smsIndexEnd = _incomingBuffer.indexOf(',');
 
-  _dataEndIndex = 0;
+  _smsDataEndIndex = 0;
 
   if (smsIndexStart != -1 && smsIndexEnd != -1) {
     while (MODEM.ready() == 0);
