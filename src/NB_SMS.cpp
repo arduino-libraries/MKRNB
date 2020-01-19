@@ -43,8 +43,7 @@ NB_SMS::NB_SMS(bool synch) :
 /* Translation tables from GSM_03.38 are equal to UTF-8 for the
  * positions 0x0A, 0x0D, 0x1B, 0x20-0x23, 0x25-0x3F, 0x41-0x5A, 0x61-0x7A.
  * Collect the others into two translation tables.
- * Code will be much simpler if basic table contains all entries for
- * 0x00-0x24, 0x3B-0x40, 0x5B-0x60, 0x7B-0x7F */
+ * Code uses a simplified range test. */
 
 struct sms_mapping {
   const unsigned char smsc;
@@ -55,10 +54,10 @@ struct sms_mapping {
 };
 
 sms_mapping _smsUTF8map[] = {
-    {0x00,"@"},{0x10,"Δ"},{0x20," "},{0x40,"¡"},{0x60,"¿"},
-    {0x01,"£"},{0x11,"_"},{0x21,"!"},
-    {0x02,"$"},{0x12,"Φ"},{0x22,"\""},
-    {0x03,"¥"},{0x13,"Γ"},{0x23,"#"},
+    {0x00,"@"},{0x10,"Δ"},           {0x40,"¡"},{0x60,"¿"},
+    {0x01,"£"},{0x11,"_"},
+    {0x02,"$"},{0x12,"Φ"},
+    {0x03,"¥"},{0x13,"Γ"},
     {0x04,"è"},{0x14,"Λ"},{0x24,"¤"},
     {0x05,"é"},{0x15,"Ω"},
     {0x06,"ù"},{0x16,"Π"},
@@ -66,12 +65,12 @@ sms_mapping _smsUTF8map[] = {
     {0x08,"ò"},{0x18,"Σ"},
     {0x09,"Ç"},{0x19,"Θ"},
 /* Text mode SMS uses 0x1A as send marker so Ξ is not available. */
-    {0x0A,"\r"},//{0x1A,"Ξ"},
-    {0x0B,"Ø"},{0x1B,"\b"},{0x3B,";"},{0x5B,"Ä"},{0x7B,"ä"},
-    {0x0C,"ø"},{0x1C,"Æ"},{0x3C,"<"},{0x5C,"Ö"},{0x7C,"ö"},
-    {0x0D,"\n"},{0x1D,"æ"},{0x3D,"="},{0x5D,"Ñ"},{0x7D,"ñ"},
-    {0x0E,"Å"},{0x1E,"ß"},{0x3E,">"},{0x5E,"Ü"},{0x7E,"ü"},
-    {0x0F,"å"},{0x1F,"É"},{0x3F,"?"},{0x5F,"§"},{0x7F,"à"}};
+             //{0x1A,"Ξ"},
+    {0x0B,"Ø"},                      {0x5B,"Ä"},{0x7B,"ä"},
+    {0x0C,"ø"},{0x1C,"Æ"},           {0x5C,"Ö"},{0x7C,"ö"},
+               {0x1D,"æ"},           {0x5D,"Ñ"},{0x7D,"ñ"},
+    {0x0E,"Å"},{0x1E,"ß"},           {0x5E,"Ü"},{0x7E,"ü"},
+    {0x0F,"å"},{0x1F,"É"},           {0x5F,"§"},{0x7F,"à"}};
 
 /* Text mode SMS uses 0x1B as abort marker so extended set is not available. */
 #if 0
@@ -95,7 +94,7 @@ size_t NB_SMS::write(uint8_t c)
 {
   if (_smsTxActive) {
 #ifndef NO_SMS_CHARSET
-    if (c <= 0x24 || c >= 0x80 || (c&0x1F) == 0 || (c&0x1F) >= 0x1B) {
+    if (c >= 0x80 || c <= 0x24 || (c&0x1F) == 0 || (c&0x1F) >= 0x1B) {
       _bufferUTF8[_indexUTF8++]=c;
       if (_bufferUTF8[0] < 0x80
           || (_indexUTF8==2 && (_bufferUTF8[0]&0xE0) == 0xC0)
@@ -279,7 +278,7 @@ int NB_SMS::read()
   }
   if (_smsDataIndex < _incomingBuffer.length() && _smsDataIndex <= _smsDataEndIndex) {
     char c = _incomingBuffer[_smsDataIndex++];
-    if (c <= 0x24 || c >= 0x80 || (c&0x1F) == 0 || (c&0x1F) >= 0x1B) {
+    if (c >= 0x80 || c <= 0x24 || (c&0x1F) == 0 || (c&0x1F) >= 0x1B) {
       for (auto &smschar : _smsUTF8map) {
         if (c == smschar.smsc) {
           _ptrUTF8=smschar.utf8;
