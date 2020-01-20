@@ -157,7 +157,7 @@ int NB_SMS::available()
 int NB_SMS::remoteNumber(char* number, int nlength)
 {
   #define PHONE_NUMBER_START_SEARCH_PATTERN "\"REC UNREAD\",\""
-  int phoneNumberStartIndex = _incomingBuffer.indexOf(PHONE_NUMBER_START_SEARCH_PATTERN);
+  int phoneNumberStartIndex = _incomingBuffer.indexOf(PHONE_NUMBER_START_SEARCH_PATTERN,_smsDataEndIndex);
 
   if (phoneNumberStartIndex != -1) {
     int i = phoneNumberStartIndex + sizeof(PHONE_NUMBER_START_SEARCH_PATTERN) - 1;
