@@ -30,6 +30,7 @@ enum {
 NB_SMS::NB_SMS(bool synch) :
   _synch(synch),
   _state(SMS_STATE_IDLE),
+  _smsIndex(0),
   _smsDataIndex(0),
   _smsDataEndIndex(0),
   _smsTxActive(false)
@@ -113,9 +114,9 @@ int NB_SMS::endSMS()
 
 int NB_SMS::available()
 {
-  _smsDataIndex = _incomingBuffer.indexOf("+CMGL: ",_smsDataEndIndex);
+  _smsIndex = _incomingBuffer.indexOf("+CMGL: ",_smsDataEndIndex);
 
-  if (_smsDataIndex == -1) {
+  if (_smsIndex == -1) {
     int r;
 
     if (_state == SMS_STATE_IDLE) {
@@ -134,13 +135,13 @@ int NB_SMS::available()
     if (r != 1) {
       return 0;
     } 
-    _smsDataIndex = _incomingBuffer.indexOf("+CMGL: ",_smsDataEndIndex);
+    _smsIndex = _incomingBuffer.indexOf("+CMGL: ",_smsDataEndIndex);
   }
 
-  if (_smsDataIndex != -1) {
-    _smsDataIndex = _incomingBuffer.indexOf('\n',_smsDataIndex) + 1;
+  if (_smsIndex != -1) {
+    _smsDataIndex = _incomingBuffer.indexOf('\n',_smsIndex) + 1;
 
-    _smsDataEndIndex = _incomingBuffer.indexOf("\r\n+CMGL: ");
+    _smsDataEndIndex = _incomingBuffer.indexOf("\r\n+CMGL: ",_smsDataIndex);
     if (_smsDataEndIndex == -1) {
       _smsDataEndIndex = _incomingBuffer.length() - 1;
     }
@@ -157,7 +158,7 @@ int NB_SMS::available()
 int NB_SMS::remoteNumber(char* number, int nlength)
 {
   #define PHONE_NUMBER_START_SEARCH_PATTERN "\"REC UNREAD\",\""
-  int phoneNumberStartIndex = _incomingBuffer.indexOf(PHONE_NUMBER_START_SEARCH_PATTERN,_smsDataEndIndex);
+  int phoneNumberStartIndex = _incomingBuffer.indexOf(PHONE_NUMBER_START_SEARCH_PATTERN,_smsIndex);
 
   if (phoneNumberStartIndex != -1) {
     int i = phoneNumberStartIndex + sizeof(PHONE_NUMBER_START_SEARCH_PATTERN) - 1;
@@ -205,10 +206,8 @@ int NB_SMS::peek()
 
 void NB_SMS::flush()
 {
-  int smsIndexStart = _incomingBuffer.indexOf(' ');
-  int smsIndexEnd = _incomingBuffer.indexOf(',');
-
-  _smsDataEndIndex = 0;
+  int smsIndexStart = _incomingBuffer.indexOf(' ',_smsIndex);
+  int smsIndexEnd = _incomingBuffer.indexOf(',',_smsIndex);
 
   if (smsIndexStart != -1 && smsIndexEnd != -1) {
     while (MODEM.ready() == 0);

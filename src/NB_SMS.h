@@ -82,6 +82,7 @@ private:
   bool _synch;
   int _state;
   String _incomingBuffer;
+  int _smsIndex;
   int _smsDataIndex;
   int _smsDataEndIndex;
   bool _smsTxActive;
