@@ -121,6 +121,7 @@ int NB_SMS::available()
 
     if (_state == SMS_STATE_IDLE) {
       _state = SMS_STATE_LIST_MESSAGES;
+      _incomingBuffer = "";
       _smsDataEndIndex = 0;
     }
 
