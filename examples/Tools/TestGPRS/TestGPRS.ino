@@ -112,7 +112,7 @@ void loop() {
 
       client.println(" HTTP/1.1");
       client.print("Host: ");
-      client.println(server);
+      client.println(url);
       client.println("Connection: close");
       client.println();
       Serial.println(oktext);
