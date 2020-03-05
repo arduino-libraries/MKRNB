@@ -110,7 +110,10 @@ void loop() {
         client.print(path);
       }
 
-      client.println(" HTTP/1.0");
+      client.println(" HTTP/1.1");
+      client.print("Host: ");
+      client.println(url);
+      client.println("Connection: close");
       client.println();
       Serial.println(oktext);
     } else {
