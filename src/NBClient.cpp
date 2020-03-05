@@ -34,7 +34,8 @@ enum {
   CLIENT_STATE_CONNECT,
   CLIENT_STATE_WAIT_CONNECT_RESPONSE,
   CLIENT_STATE_CLOSE_SOCKET,
-  CLIENT_STATE_WAIT_CLOSE_SOCKET
+  CLIENT_STATE_WAIT_CLOSE_SOCKET,
+  CLIENT_STATE_RETRIEVE_ERROR
 };
 
 NBClient::NBClient(bool synch) :
@@ -172,8 +173,14 @@ int NBClient::ready()
     }
 
     case CLIENT_STATE_WAIT_CLOSE_SOCKET: {
-      _state = CLIENT_STATE_IDLE;
+      _state = CLIENT_STATE_RETRIEVE_ERROR;
       _socket = -1;
+      break;
+    }
+
+    case CLIENT_STATE_RETRIEVE_ERROR: {
+      MODEM.send("AT+USOER");
+      _state = CLIENT_STATE_IDLE;
       break;
     }
   }
