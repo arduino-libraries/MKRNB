@@ -486,6 +486,11 @@ unsigned long NB::getLocalTime()
   return 0;
 }
 
+void NB::setTime(unsigned long const epoch)
+{
+  /* TODO */
+}
+
 NB_NetworkStatus_t NB::status()
 {
   return _state;
