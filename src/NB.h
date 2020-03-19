@@ -73,6 +73,7 @@ public:
 
   unsigned long getTime();
   unsigned long getLocalTime();
+  void setTime(unsigned long const epoch);
 
   NB_NetworkStatus_t status();
 
