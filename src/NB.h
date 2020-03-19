@@ -73,7 +73,7 @@ public:
 
   unsigned long getTime();
   unsigned long getLocalTime();
-  void setTime(unsigned long const epoch);
+  int setTime(unsigned long const epoch, int timezone = 0);
 
   NB_NetworkStatus_t status();
 
