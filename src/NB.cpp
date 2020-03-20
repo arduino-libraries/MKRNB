@@ -152,7 +152,7 @@ int NB::ready()
     return 0;
   }
 
-  MODEM.poll();
+  //MODEM.poll();
 
   switch (_readyState) {
     case READY_STATE_SET_ERROR_DISABLED: {
