@@ -486,10 +486,11 @@ unsigned long NB::getLocalTime()
   return 0;
 }
 
-int NB::setTime(unsigned long const epoch, int timezone) {
+bool NB::setTime(unsigned long const epoch, int const timezone)
+{
   String hours, date;
   const uint8_t daysInMonth [] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30 };
-  unsigned long unix_time = epoch - 946684800UL;// subtract seconds from 1970 to 2000
+  unsigned long unix_time = epoch - 946684800UL; /* Subtract seconds from 1970 to 2000 */
 
   if (((unix_time  % 86400L) / 3600) < 10 ) {
     hours = "0";
@@ -511,7 +512,7 @@ int NB::setTime(unsigned long const epoch, int timezone) {
   }
 
   hours += String(timezone);
-  //convert unix_time from seconds to days
+  /* Convert unix_time from seconds to days */
   int days = unix_time / (24 * 3600);
   int leap;
   int year = 0;
@@ -547,11 +548,12 @@ int NB::setTime(unsigned long const epoch, int timezone) {
     date += "0";
   }
   date +=  String(days + 1) + ",";
+
   MODEM.send("AT+CCLK=\"" + date + hours + "\"");
   if (MODEM.waitForResponse(100) != 1) {
-    return 0;
+    return false;
   }
-  return 1;
+  return true;
 }
 
 NB_NetworkStatus_t NB::status()
