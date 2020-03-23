@@ -486,6 +486,76 @@ unsigned long NB::getLocalTime()
   return 0;
 }
 
+bool NB::setTime(unsigned long const epoch, int const timezone)
+{
+  String hours, date;
+  const uint8_t daysInMonth [] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30 };
+  unsigned long unix_time = epoch - 946684800UL; /* Subtract seconds from 1970 to 2000 */
+
+  if (((unix_time  % 86400L) / 3600) < 10 ) {
+    hours = "0";
+  }
+
+  hours += String((unix_time  % 86400L) / 3600) + ":";
+  if ( ((unix_time  % 3600) / 60) < 10 ) {
+    hours = "0";
+  }
+
+  hours += String((unix_time  % 3600) / 60) + ":";
+   if ((unix_time % 60) < 10 ) {
+    hours += "0";
+  }
+
+  hours += String(unix_time % 60)+ "+";
+  if (timezone < 10) {
+    hours += "0";
+  }
+
+  hours += String(timezone);
+  /* Convert unix_time from seconds to days */
+  int days = unix_time / (24 * 3600);
+  int leap;
+  int year = 0;
+  while (1) {
+    leap = year % 4 == 0;
+    if (days < 365 + leap) {
+      if (year < 10) {
+        date += "0";
+      }
+    break;
+    }
+    days -= 365 + leap;
+    year++;
+  }
+
+  date += String(year) + "/";
+  int month;
+  for (month = 1; month < 12; month++) {
+    uint8_t daysPerMonth = daysInMonth[month - 1];
+    if (leap && month == 2)
+      daysPerMonth++;
+    if (days < daysPerMonth) {
+      if (month < 10) {
+        date += "0";
+      }
+      break;
+    }
+    days -= daysPerMonth;
+  }
+  date += String(month) + "/";
+
+  if ((days + 1) < 10) {
+    date += "0";
+  }
+  date +=  String(days + 1) + ",";
+
+  MODEM.send("AT+CCLK=\"" + date + hours + "\"");
+  if (MODEM.waitForResponse(100) != 1) {
+    return false;
+  }
+  return true;
+}
+
 NB_NetworkStatus_t NB::status()
 {
   return _state;

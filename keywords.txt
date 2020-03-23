@@ -44,6 +44,7 @@ getPINUsed	KEYWORD2
 setPINUsed	KEYWORD2
 hostByName	KEYWORD2
 getTime	KEYWORD2
+setTime	KEYWORD2
 getLocalTime	KEYWORD2
 
 #######################################
