@@ -152,8 +152,6 @@ int NB::ready()
     return 0;
   }
 
-  MODEM.poll();
-
   switch (_readyState) {
     case READY_STATE_SET_ERROR_DISABLED: {
       MODEM.send("AT+CMEE=0");
