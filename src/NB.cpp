@@ -46,6 +46,10 @@ enum {
   READY_STATE_WAIT_SET_APN_AUTH,
   READY_STATE_SET_FULL_FUNCTIONALITY_MODE,
   READY_STATE_WAIT_SET_FULL_FUNCTIONALITY_MODE,
+#ifndef NO_SMS_CHARSET
+  READY_STATE_SET_CHARSET,
+  READY_STATE_WAIT_SET_CHARSET,
+#endif
   READY_STATE_CHECK_REGISTRATION,
   READY_STATE_WAIT_CHECK_REGISTRATION_RESPONSE,
   READY_STATE_DONE
@@ -152,7 +156,7 @@ int NB::ready()
     return 0;
   }
 
-  MODEM.poll();
+  //MODEM.poll();
 
   switch (_readyState) {
     case READY_STATE_SET_ERROR_DISABLED: {
@@ -378,13 +382,34 @@ int NB::ready()
         _state = ERROR;
         ready = 2;
       } else {
-        _readyState = READY_STATE_CHECK_REGISTRATION;
+#ifndef NO_SMS_CHARSET
+        _readyState = READY_STATE_SET_CHARSET;
         ready = 0;
       }
 
       break;
     }
   
+    case READY_STATE_SET_CHARSET: {
+      MODEM.send("AT+CSCS=\"GSM\"");
+      _readyState = READY_STATE_WAIT_SET_CHARSET;
+      ready = 0;
+      break;
+    }
+
+    case READY_STATE_WAIT_SET_CHARSET:{
+      if (ready > 1) {
+        _state = ERROR;
+        ready = 2;
+      } else {
+#endif
+        _readyState = READY_STATE_CHECK_REGISTRATION;
+        ready = 0;
+      }
+
+      break;
+    }
+
     case READY_STATE_CHECK_REGISTRATION: {
       MODEM.setResponseDataStorage(&_response);
       MODEM.send("AT+CEREG?");
@@ -432,7 +457,7 @@ void NB::setTimeout(unsigned long timeout)
   _timeout = timeout;
 }
 
-unsigned long NB::getTime()
+unsigned long NB::getLocalTime()
 {
   String response;
 
@@ -455,9 +480,9 @@ unsigned long NB::getTime()
     time_t delta = ((response.charAt(26) - '0') * 10 + (response.charAt(27) - '0')) * (15 * 60);
 
     if (response.charAt(25) == '-') {
-      result += delta;
-    } else if (response.charAt(25) == '+') {
       result -= delta;
+    } else if (response.charAt(25) == '+') {
+      result += delta;
     }
 
     return result;
@@ -466,7 +491,7 @@ unsigned long NB::getTime()
   return 0;
 }
 
-unsigned long NB::getLocalTime()
+unsigned long NB::getTime()
 {
   String response;
 

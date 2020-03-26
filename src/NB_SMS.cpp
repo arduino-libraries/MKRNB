@@ -144,10 +144,13 @@ int NB_SMS::available()
 
     _smsDataEndIndex = _incomingBuffer.indexOf("\r\n+CMGL: ",_smsDataIndex);
     if (_smsDataEndIndex == -1) {
-      _smsDataEndIndex = _incomingBuffer.length() - 1;
+      _smsDataEndIndex = _incomingBuffer.lastIndexOf("\r\n");
+    }
+    if (_smsDataEndIndex == -1) {
+      _smsDataEndIndex = _incomingBuffer.length();
     }
 
-    return (_smsDataEndIndex - _smsDataIndex) + 1;
+    return (_smsDataEndIndex - _smsDataIndex);
   } else {
     _incomingBuffer = "";
     _smsDataEndIndex = 0;
@@ -189,7 +192,7 @@ int NB_SMS::read()
 {
   int bufferLength = _incomingBuffer.length();
 
-  if (_smsDataIndex < bufferLength && _smsDataIndex <= _smsDataEndIndex) {
+  if (_smsDataIndex < bufferLength && _smsDataIndex < _smsDataEndIndex) {
     return _incomingBuffer[_smsDataIndex++];
   }
 
@@ -198,7 +201,7 @@ int NB_SMS::read()
 
 int NB_SMS::peek()
 {
-  if (_smsDataIndex < (int)_incomingBuffer.length() && _smsDataIndex <= _smsDataEndIndex) {
+  if (_smsDataIndex < (int)_incomingBuffer.length() && _smsDataIndex < _smsDataEndIndex) {
     return _incomingBuffer[_smsDataIndex];
   }
 
