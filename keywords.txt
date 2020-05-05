@@ -27,7 +27,7 @@ beginSMS	KEYWORD2
 endSMS	KEYWORD2
 remoteNumber	KEYWORD2
 attachGPRS	KEYWORD2
-begnWrite	KEYWORD2
+beginWrite	KEYWORD2
 endWrite	KEYWORD2
 getIMEI	KEYWORD2
 getICCID	KEYWORD2
@@ -44,6 +44,7 @@ getPINUsed	KEYWORD2
 setPINUsed	KEYWORD2
 hostByName	KEYWORD2
 getTime	KEYWORD2
+setTime	KEYWORD2
 getLocalTime	KEYWORD2
 
 #######################################

@@ -73,6 +73,7 @@ public:
 
   unsigned long getTime();
   unsigned long getLocalTime();
+  bool setTime(unsigned long const epoch, int const timezone = 0);
 
   NB_NetworkStatus_t status();
 
