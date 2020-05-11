@@ -24,6 +24,7 @@
 #include "NB_SMS.h"
 #include "GPRS.h"
 #include "NBClient.h"
+#include "NBFTP.h"
 #include "NBModem.h"
 #include "NBScanner.h"
 #include "NBPIN.h"

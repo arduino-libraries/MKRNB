@@ -226,6 +226,15 @@ int ModemClass::ready()
   return _ready;
 }
 
+int ModemClass::read()
+{
+  if (_uart->available()) {
+    return _uart->read();
+  } else {
+    return -1;
+  }
+}
+
 void ModemClass::poll()
 {
   while (_uart->available()) {

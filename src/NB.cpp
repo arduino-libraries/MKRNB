@@ -126,6 +126,7 @@ bool NB::shutdown()
 {
   if (_state == NB_READY) {
     MODEM.send("AT+CPWROFF");
+    // shouldn't this return false if nothing is returned?
     MODEM.waitForResponse(40000);
   }
   MODEM.end();

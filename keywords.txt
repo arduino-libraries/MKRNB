@@ -9,6 +9,7 @@ NB	KEYWORD1
 NB_SMS	KEYWORD1
 GPRS	KEYWORD1
 NBClient	KEYWORD1
+NBFTP	KEYWORD1
 NBModem	KEYWORD1
 NBScanner	KEYWORD1
 NBPIN	KEYWORD1
@@ -46,6 +47,22 @@ hostByName	KEYWORD2
 getTime	KEYWORD2
 setTime	KEYWORD2
 getLocalTime	KEYWORD2
+configure	KEYWORD2
+configureIP	KEYWORD2
+configureHost	KEYWORD2
+configurePort	KEYWORD2
+configureUsername	KEYWORD2
+configurePassword	KEYWORD2
+configurePassive	KEYWORD2
+configureAccount	KEYWORD2
+configureAuth	KEYWORD2
+deleteFile	KEYWORD2
+renameFile	KEYWORD2
+getFile	KEYWORD2
+sendFile	KEYWORD2
+changeDir	KEYWORD2
+makeDir	KEYWORD2
+rmDir	KEYWORD2
 
 #######################################
 # Constants

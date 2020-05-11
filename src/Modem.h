@@ -56,6 +56,8 @@ public:
   int waitForPrompt(unsigned long timeout = 500);
   int waitForResponse(unsigned long timeout = 200, String* responseDataStorage = NULL);
   int ready();
+  
+  int read();
   void poll();
   void setResponseDataStorage(String* responseDataStorage);
 
