@@ -340,3 +340,18 @@ void NB_SMS::flush()
     }
   }
 }
+
+void NB_SMS::clear()
+{
+#ifndef NO_SMS_CHARSET
+  _ptrUTF8 = "";
+#endif
+
+  while (MODEM.ready() == 0);
+
+  MODEM.sendf("AT+CMGD=0,2");
+
+  if (_synch) {
+    MODEM.waitForResponse(55000);
+  }
+}

@@ -77,6 +77,10 @@ public:
   /** Delete the SMS from Modem memory and proccess answer
    */
   void flush();
+  
+  /** Delete all read and sent SMS from Modem memory and process answer
+   */
+  void clear();
 
 private:
   bool _synch;
