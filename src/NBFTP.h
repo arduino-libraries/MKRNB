@@ -205,6 +205,8 @@ public:
   /** undefined behavior */
   operator bool();
 
+  void getError();
+
   virtual void handleUrc(const String& urc);
 private:
   bool _synch;

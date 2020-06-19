@@ -124,7 +124,7 @@ int NB::isAccessAlive()
 
 bool NB::shutdown()
 {
-  if (_state == NB_READY) {
+  if (_state == NB_READY || _state == ERROR) {
     MODEM.send("AT+CPWROFF");
     // shouldn't this return false if nothing is returned?
     MODEM.waitForResponse(40000);
@@ -442,6 +442,16 @@ unsigned long NB::getTime()
 
   struct tm now;
 
+  time_t delta = ((response.charAt(26) - '0') * 10 + (response.charAt(27) - '0')) * (15 * 60);
+
+  if (response.charAt(25) == '-') {
+    delta = -delta;
+  } else if (response.charAt(25) == '+') {
+    delta = delta;
+  } else {
+    delta = 0;
+  }
+
   int dashIndex = response.lastIndexOf('-');
   if (dashIndex != -1) {
     response.remove(dashIndex);
@@ -451,15 +461,8 @@ unsigned long NB::getTime()
     // adjust for timezone offset which is +/- in 15 minute increments
 
     time_t result = mktime(&now);
-    time_t delta = ((response.charAt(26) - '0') * 10 + (response.charAt(27) - '0')) * (15 * 60);
 
-    if (response.charAt(25) == '-') {
-      result += delta;
-    } else if (response.charAt(25) == '+') {
-      result -= delta;
-    }
-
-    return result;
+    return result + delta;
   }
 
   return 0;

@@ -27,16 +27,23 @@
 
 enum {
     CLIENT_STATE_IDLE,
-    CLIENT_STATE_WAIT_CONNECT_RESPONSE,
-    CLIENT_STATE_WAIT_CONNECT_URC,
-    CLIENT_STATE_WAIT_COMMAND_RESPONSE,
-    CLIENT_STATE_WAIT_COMMAND_URC,
+
+    CLIENT_STATE_WAIT_CONNECT_RESPONSE, // need RESPONSE then URC
+    CLIENT_STATE_WAIT_CONNECT_URC, // just need URC
+    CLIENT_STATE_RESPONSE_CONNECT_NEEDED, // got URC, awaiting RESPONSE
+
+    CLIENT_STATE_WAIT_COMMAND_RESPONSE, // need RESPONSE then URC
+    CLIENT_STATE_WAIT_COMMAND_URC, // just need URC
+    CLIENT_STATE_RESPONSE_COMMAND_NEEDED, // got URC, awaiting RESPONSE
+
     CLIENT_STATE_WAIT_RECV_RESPONSE,
     CLIENT_STATE_WAIT_RECV_URC,
     CLIENT_STATE_RECV_DATA,
+
     CLIENT_STATE_WAIT_SEND_RESPONSE,
     CLIENT_STATE_WAIT_SEND_URC,
     CLIENT_STATE_SEND_DATA,
+
     CLIENT_STATE_WAIT_SEND_DISCONNECT,
     CLIENT_STATE_WAIT_SEND_CLEANUP,
     CLIENT_STATE_CLOSE,
@@ -101,6 +108,15 @@ int NBFTP::ready()
             ready = 0;
             break;
         }
+        case CLIENT_STATE_RESPONSE_CONNECT_NEEDED: {
+            if (ready > 1) {
+                _state = CLIENT_STATE_CLOSE;
+            } else {
+                _state = CLIENT_STATE_IDLE;
+                _connected = true;
+            }
+            break;
+        }
 
         // between sending a command and completing,
         // we first receive an OK/ERROR, this is indicated by
@@ -113,6 +129,14 @@ int NBFTP::ready()
                 _state = CLIENT_STATE_WAIT_COMMAND_URC;
             }
             ready = 0;
+            break;
+        }
+        case CLIENT_STATE_RESPONSE_COMMAND_NEEDED: {
+            if (ready > 1) {
+                _state = CLIENT_STATE_CLOSE;
+            } else {
+                _state = CLIENT_STATE_IDLE;
+            }
             break;
         }
 
@@ -382,7 +406,7 @@ void NBFTP::sendFileEnd() {
     if (_state != CLIENT_STATE_SEND_DATA) {
         return;
     }
-    delay(1000);
+    delay(2000);
     write((uint8_t*) "+++", 3);
     _state = CLIENT_STATE_WAIT_SEND_DISCONNECT;
 
@@ -394,6 +418,7 @@ void NBFTP::sendFileEnd() {
 }
 
 int NBFTP::getFileBegin(const uint8_t *file) {
+    Serial.println("NOT PROPERLY SUPPORTED!\n");
     if (_synch) {
         while (ready() == 0);
     } else if (ready() == 0) {
@@ -432,6 +457,7 @@ int NBFTP::available() {
  @return returns the next byte from the file being downloaded
 */
 int NBFTP::read() {
+    Serial.println("NOT PROPERLY SUPPORTED!\n");
     return 0;
 }
 
@@ -455,7 +481,7 @@ int NBFTP::read(uint8_t *buf, size_t size) {
 }
 
 void NBFTP::endRead() {
-    
+    Serial.println("NOT PROPERLY SUPPORTED!\n");
 }
 
 /** reads the next byte in the file being downloaded.
@@ -504,15 +530,30 @@ void NBFTP::handleUrc(const String& urc)
             // command failed. We check the state to see if this was
             // a connect command (because connect commands do not need to be 
             // followed by a close). Otherwise, we close the connection due to error
-            Serial.println("Going to error state");
             _state = CLIENT_STATE_RETRIEVE_ERROR;
         } else if (result == '1') {
             // command succeeded. We check if it was a connect command and will
             // update connected here instead of in ready
+            Serial.print("Got result: ");
+            Serial.print(result);
+            Serial.print(" with response code ");
+            Serial.print(urc.charAt(urc.lastIndexOf(',')-1));
+            Serial.print(" in state ");
+            Serial.println(_state);
             if (_state == CLIENT_STATE_WAIT_CONNECT_URC) {
                 _connected = true;
             }
-            _state = CLIENT_STATE_IDLE;
+            switch (_state) {
+                case CLIENT_STATE_WAIT_CONNECT_RESPONSE:
+                    _state = CLIENT_STATE_RESPONSE_CONNECT_NEEDED;
+                    break;
+                case CLIENT_STATE_WAIT_COMMAND_RESPONSE:
+                    _state = CLIENT_STATE_RESPONSE_COMMAND_NEEDED;
+                    break;
+                default:
+                    _state = CLIENT_STATE_IDLE;
+                    break;
+            }
         } else {
             Serial.println("Panic!");
         }
@@ -534,6 +575,11 @@ void NBFTP::handleUrc(const String& urc)
     } else if (urc.startsWith("+UUFTPCD: ")) {
         Serial.println("Detected a +UUFTPCD: message");
     }
+}
+
+void NBFTP::getError() {
+    MODEM.send("AT+UFTPER");
+    MODEM.waitForResponse(100);
 }
 
 // private
