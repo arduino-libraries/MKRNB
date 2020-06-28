@@ -30,9 +30,6 @@ enum {
 NB_SMS::NB_SMS(bool synch) :
   _synch(synch),
   _state(SMS_STATE_IDLE),
-  _smsIndex(0),
-  _smsDataIndex(0),
-  _smsDataEndIndex(0),
   _smsTxActive(false)
 {
 }
@@ -114,15 +111,19 @@ int NB_SMS::endSMS()
 
 int NB_SMS::available()
 {
-  _smsIndex = _incomingBuffer.indexOf("+CMGL: ",_smsDataEndIndex);
+  int nextMessageIndex = _incomingBuffer.indexOf("+CMGL: ");
 
-  if (_smsIndex == -1) {
+  if (nextMessageIndex != -1) {
+    _incomingBuffer.remove(0, nextMessageIndex);
+  } else {
+    _incomingBuffer = "";
+  }
+
+  if (_incomingBuffer.length() == 0) {
     int r;
 
     if (_state == SMS_STATE_IDLE) {
       _state = SMS_STATE_LIST_MESSAGES;
-      _incomingBuffer = "";
-      _smsDataEndIndex = 0;
     }
 
     if (_synch) {
@@ -136,24 +137,19 @@ int NB_SMS::available()
     if (r != 1) {
       return 0;
     } 
-    _smsIndex = _incomingBuffer.indexOf("+CMGL: ",_smsDataEndIndex);
   }
 
-  if (_smsIndex != -1) {
-    _smsDataIndex = _incomingBuffer.indexOf('\n',_smsIndex) + 1;
+  if (_incomingBuffer.startsWith("+CMGL: ")) {
+    _smsDataIndex = _incomingBuffer.indexOf('\n') + 1;
 
     _smsDataEndIndex = _incomingBuffer.indexOf("\r\n+CMGL: ",_smsDataIndex);
     if (_smsDataEndIndex == -1) {
-      _smsDataEndIndex = _incomingBuffer.lastIndexOf("\r\n");
-    }
-    if (_smsDataEndIndex == -1) {
-      _smsDataEndIndex = _incomingBuffer.length();
+      _smsDataEndIndex = _incomingBuffer.length() - 1;
     }
 
-    return (_smsDataEndIndex - _smsDataIndex);
+    return (_smsDataEndIndex - _smsDataIndex) + 1;
   } else {
     _incomingBuffer = "";
-    _smsDataEndIndex = 0;
   }
 
   return 0;
@@ -162,7 +158,7 @@ int NB_SMS::available()
 int NB_SMS::remoteNumber(char* number, int nlength)
 {
   #define PHONE_NUMBER_START_SEARCH_PATTERN "\"REC UNREAD\",\""
-  int phoneNumberStartIndex = _incomingBuffer.indexOf(PHONE_NUMBER_START_SEARCH_PATTERN,_smsIndex);
+  int phoneNumberStartIndex = _incomingBuffer.indexOf(PHONE_NUMBER_START_SEARCH_PATTERN);
 
   if (phoneNumberStartIndex != -1) {
     int i = phoneNumberStartIndex + sizeof(PHONE_NUMBER_START_SEARCH_PATTERN) - 1;
@@ -192,7 +188,7 @@ int NB_SMS::read()
 {
   int bufferLength = _incomingBuffer.length();
 
-  if (_smsDataIndex < bufferLength && _smsDataIndex < _smsDataEndIndex) {
+  if (_smsDataIndex < bufferLength && _smsDataIndex <= _smsDataEndIndex) {
     return _incomingBuffer[_smsDataIndex++];
   }
 
@@ -201,7 +197,7 @@ int NB_SMS::read()
 
 int NB_SMS::peek()
 {
-  if (_smsDataIndex < (int)_incomingBuffer.length() && _smsDataIndex < _smsDataEndIndex) {
+  if (_smsDataIndex < (int)_incomingBuffer.length() && _smsDataIndex <= _smsDataEndIndex) {
     return _incomingBuffer[_smsDataIndex];
   }
 
@@ -210,8 +206,8 @@ int NB_SMS::peek()
 
 void NB_SMS::flush()
 {
-  int smsIndexStart = _incomingBuffer.indexOf(' ',_smsIndex);
-  int smsIndexEnd = _incomingBuffer.indexOf(',',_smsIndex);
+  int smsIndexStart = _incomingBuffer.indexOf(' ');
+  int smsIndexEnd = _incomingBuffer.indexOf(',');
 
   if (smsIndexStart != -1 && smsIndexEnd != -1) {
     while (MODEM.ready() == 0);
@@ -221,5 +217,6 @@ void NB_SMS::flush()
     if (_synch) {
       MODEM.waitForResponse(55000);
     }
+    _incomingBuffer.remove(0, _smsDataEndIndex);
   }
 }

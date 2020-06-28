@@ -74,7 +74,7 @@ public:
    */
   int peek();
 
-  /** Delete the currently read SMS from Modem memory and process answer
+  /** Delete the SMS from Modem memory and proccess answer
    */
   void flush();
 
@@ -82,7 +82,6 @@ private:
   bool _synch;
   int _state;
   String _incomingBuffer;
-  int _smsIndex;
   int _smsDataIndex;
   int _smsDataEndIndex;
   bool _smsTxActive;
