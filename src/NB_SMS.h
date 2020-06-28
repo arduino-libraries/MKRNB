@@ -93,13 +93,12 @@ private:
   int _state;
   String _incomingBuffer;
   int _smsDataIndex;
-  int _prevSmsEndIndex;
+  int _smsDataEndIndex;
   bool _smsTxActive;
   int _charset;
   char _bufferUTF8[4];
   int _indexUTF8;
   const char* _ptrUTF8;
-
 };
 
 #endif

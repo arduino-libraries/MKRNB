@@ -35,16 +35,13 @@ enum {
 };
 
 NB_SMS::NB_SMS(bool synch) :
+  _synch(synch),
+  _state(SMS_STATE_IDLE),
+  _smsTxActive(false)
+  _charset(SMS_CHARSET_IRA),
   _bufferUTF8({0,0,0,0}),
   _indexUTF8(0),
   _ptrUTF8(""),
-  _synch(synch),
-  _state(SMS_STATE_IDLE),
-  _charset(SMS_CHARSET_IRA),
-  _smsIndex(0),
-  _smsDataIndex(0),
-  _prevSmsEndIndex(0),
-  _smsTxActive(false)
 {
 }
 
@@ -244,7 +241,9 @@ int NB_SMS::endSMS()
     MODEM.write(26);
     
     if (_synch) {
-      r = MODEM.waitForResponse(3*60*1000);
+      while ((r = MODEM.ready()) == 0) {
+        delay(100);
+      }
     } else {
       r = MODEM.ready();
     }
@@ -270,8 +269,6 @@ int NB_SMS::available()
 
     if (_state == SMS_STATE_IDLE) {
       _state = SMS_STATE_LIST_MESSAGES;
-      _incomingBuffer = "";
-      _prevSmsEndIndex = 0;
     }
 
     if (_synch) {
@@ -286,7 +283,6 @@ int NB_SMS::available()
     if (r != 1) {
       return 0;
     } 
-    _smsIndex = _incomingBuffer.indexOf("+CMGL: ",_prevSmsEndIndex);
   }
 
   if (_incomingBuffer.startsWith("+CMGL: ")) {
@@ -300,10 +296,9 @@ int NB_SMS::available()
       _smsDataEndIndex = _incomingBuffer.length() - 1;
     }
 
-    return (dataEndIndex - _smsDataIndex);
+    return (_smsDataEndIndex - _smsDataIndex) + 1;
   } else {
     _incomingBuffer = "";
-    _prevSmsEndIndex = 0;
   }
 
   return 0;
@@ -312,7 +307,7 @@ int NB_SMS::available()
 int NB_SMS::remoteNumber(char* number, int nlength)
 {
   #define PHONE_NUMBER_START_SEARCH_PATTERN "\"REC UNREAD\",\""
-  int phoneNumberStartIndex = _incomingBuffer.indexOf(PHONE_NUMBER_START_SEARCH_PATTERN,_smsIndex);
+  int phoneNumberStartIndex = _incomingBuffer.indexOf(PHONE_NUMBER_START_SEARCH_PATTERN);
 
   if (phoneNumberStartIndex != -1) {
     int i = phoneNumberStartIndex + sizeof(PHONE_NUMBER_START_SEARCH_PATTERN) - 1;
@@ -351,13 +346,7 @@ int NB_SMS::read()
   if (*_ptrUTF8 != 0) {
     return *_ptrUTF8++;
   }
-  if (_prevSmsEndIndex < _smsDataIndex) {
-    _prevSmsEndIndex = _incomingBuffer.indexOf("\r\n+CMGL: ",_smsDataIndex);
-    if (_prevSmsEndIndex == -1) {
-      _prevSmsEndIndex = _incomingBuffer.length();
-    }
-  }
-  if (_smsDataIndex < _incomingBuffer.length() && _smsDataIndex < _prevSmsEndIndex) {
+  if (_smsDataIndex < _incomingBuffer.length() && _smsDataIndex <= _smsDataEndIndex) {
     char c = _incomingBuffer[_smsDataIndex++];
     if (_charset == SMS_CHARSET_GSM
         && (c >= 0x80 || c <= 0x24 || (c&0x1F) == 0 || (c&0x1F) >= 0x1B)) {
@@ -396,13 +385,7 @@ int NB_SMS::peek()
   if (*_ptrUTF8 != 0) {
     return *_ptrUTF8;
   }
-  if (_prevSmsEndIndex < _smsDataIndex) {
-    _prevSmsEndIndex = _incomingBuffer.indexOf("\r\n+CMGL: ",_smsDataIndex);
-    if (_prevSmsEndIndex == -1) {
-      _prevSmsEndIndex = _incomingBuffer.length();
-    }
-  }
-  if (_smsDataIndex < _incomingBuffer.length() && _smsDataIndex < _prevSmsEndIndex) {
+  if (_smsDataIndex < (int)_incomingBuffer.length() && _smsDataIndex <= _smsDataEndIndex) {
     char c = _incomingBuffer[_smsDataIndex++];
     if (_charset == SMS_CHARSET_GSM
         && (c >= 0x80 || c <= 0x24 || (c&0x1F) == 0 || (c&0x1F) >= 0x1B)) {
