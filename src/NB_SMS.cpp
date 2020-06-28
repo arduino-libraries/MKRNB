@@ -37,7 +37,7 @@ enum {
 NB_SMS::NB_SMS(bool synch) :
   _synch(synch),
   _state(SMS_STATE_IDLE),
-  _smsTxActive(false)
+  _smsTxActive(false),
   _charset(SMS_CHARSET_IRA),
   _bufferUTF8({0,0,0,0}),
   _indexUTF8(0),
