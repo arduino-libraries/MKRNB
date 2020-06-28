@@ -36,6 +36,12 @@ public:
     */
   size_t write(uint8_t c);
 
+  /** Select SMS charset
+      @param charset     Character set, one of "IRA" (default), "GSM", or "UCS2"
+      @return returns 1 on success and 0 on error
+    */
+  int setCharset(const char* charset);
+
   /** Begin a SMS to send it
       @param to     Destination
       @return error command if it exists
@@ -87,13 +93,13 @@ private:
   int _state;
   String _incomingBuffer;
   int _smsDataIndex;
-  int _smsDataEndIndex;
+  int _prevSmsEndIndex;
   bool _smsTxActive;
-#ifndef NO_SMS_CHARSET
+  int _charset;
   char _bufferUTF8[4];
   int _indexUTF8;
   const char* _ptrUTF8;
-#endif
+
 };
 
 #endif

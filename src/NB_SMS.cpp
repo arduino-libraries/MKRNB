@@ -21,39 +21,47 @@
 
 #include "NB_SMS.h"
 
+#define NYBBLETOHEX(x) ((x)<=9?(x)+'0':(x)-10+'A')
+#define HEXTONYBBLE(x) ((x)<='9'?(x)-'0':(x)+10-'A')
+#define ITOHEX(x) NYBBLETOHEX((x)&0xF)
+
 enum {
   SMS_STATE_IDLE,
   SMS_STATE_LIST_MESSAGES,
-  SMS_STATE_WAIT_LIST_MESSAGES_RESPONSE
+  SMS_STATE_WAIT_LIST_MESSAGES_RESPONSE,
+  SMS_CHARSET_IRA,
+  SMS_CHARSET_GSM,
+  SMS_CHARSET_UCS2,
 };
 
 NB_SMS::NB_SMS(bool synch) :
-#ifndef NO_SMS_CHARSET
   _bufferUTF8({0,0,0,0}),
   _indexUTF8(0),
   _ptrUTF8(""),
-#endif
   _synch(synch),
   _state(SMS_STATE_IDLE),
+  _charset(SMS_CHARSET_IRA),
+  _smsIndex(0),
+  _smsDataIndex(0),
+  _prevSmsEndIndex(0),
   _smsTxActive(false)
 {
 }
 
-#ifndef NO_SMS_CHARSET
-/* Translation tables from GSM_03.38 are equal to UTF-8 for the
+/* Translation tables from GSM_03.38 are equal to UTF-8 for the 
  * positions 0x0A, 0x0D, 0x1B, 0x20-0x23, 0x25-0x3F, 0x41-0x5A, 0x61-0x7A.
  * Collect the others into two translation tables.
  * Code uses a simplified range test. */
 
-struct sms_mapping {
-  const unsigned char smsc;
+struct gsm_mapping {
+  const unsigned char gsmc;
   const char *utf8;
 
-  sms_mapping(const char smsc, const char *utf8)
-    : smsc(smsc), utf8(utf8) {}
+  gsm_mapping(const char gsmc, const char *utf8)
+    : gsmc(gsmc), utf8(utf8) {}
 };
 
-sms_mapping _smsUTF8map[] = {
+gsm_mapping _gsmUTF8map[] = {
     {0x00,"@"},{0x10,"Δ"},           {0x40,"¡"},{0x60,"¿"},
     {0x01,"£"},{0x11,"_"},
     {0x02,"$"},{0x12,"Φ"},
@@ -72,9 +80,9 @@ sms_mapping _smsUTF8map[] = {
     {0x0E,"Å"},{0x1E,"ß"},           {0x5E,"Ü"},{0x7E,"ü"},
     {0x0F,"å"},{0x1F,"É"},           {0x5F,"§"},{0x7F,"à"}};
 
-/* Text mode SMS uses 0x1B as abort marker so extended set is not available. */
+/* Text mode SMS uses 0x1B as abort marker so extended set is not available. */ 
 #if 0
-sms_mapping _smsXUTF8map[] = {
+gsm_mapping _gsmXUTF8map[] = {
     {0x40,"|"},
     {0x14,"^"},
     {0x65,"€"},
@@ -88,22 +96,45 @@ sms_mapping _smsXUTF8map[] = {
     {0x2F,"\\"}};
  */
 #endif
-#endif
+
+
+int NB_SMS::setCharset(const char* charset)
+{
+  int newcharset;
+
+  if (strcmp(charset,"IRA")==0) {
+    newcharset = SMS_CHARSET_IRA;
+  } else if (strcmp(charset,"GSM")==0) {
+    newcharset = SMS_CHARSET_GSM;
+  } else if (strcmp(charset,"UCS2")==0) {
+    newcharset = SMS_CHARSET_GSM;
+  } else {
+    return 0;    
+  }
+  MODEM.sendf("AT+CSCS=\"%s\"", charset);
+  if (MODEM.waitForResponse() == 1) {
+    _charset = newcharset;
+    return 1;
+  }
+
+  return 0;
+}
+
 
 size_t NB_SMS::write(uint8_t c)
 {
   if (_smsTxActive) {
-#ifndef NO_SMS_CHARSET
-    if (c >= 0x80 || c <= 0x24 || (c&0x1F) == 0 || (c&0x1F) >= 0x1B) {
+    if (_charset==SMS_CHARSET_GSM 
+        && (c >= 0x80 || c <= 0x24 || (c&0x1F) == 0 || (c&0x1F) >= 0x1B)) {
       _bufferUTF8[_indexUTF8++]=c;
-      if (_bufferUTF8[0] < 0x80
+      if (_bufferUTF8[0] < 0x80 
           || (_indexUTF8==2 && (_bufferUTF8[0]&0xE0) == 0xC0)
           || (_indexUTF8==3 && (_bufferUTF8[0]&0xF0) == 0xE0)
           || _indexUTF8==4) {
-        for (auto &smschar : _smsUTF8map) {
-          if (strncmp(_bufferUTF8, smschar.utf8, _indexUTF8)==0) {
+        for (auto &gsmchar : _gsmUTF8map) {
+          if (strncmp(_bufferUTF8, gsmchar.utf8, _indexUTF8)==0) {
             _indexUTF8=0;
-            return MODEM.write(smschar.smsc);
+            return MODEM.write(gsmchar.gsmc);
           }
         }
         // No UTF8 match, echo buffer
@@ -112,25 +143,60 @@ size_t NB_SMS::write(uint8_t c)
       }
       return 1;
     }
-#endif
+    if (_charset == SMS_CHARSET_UCS2) {
+      if (c < 0x80) {
+        MODEM.write('0');
+        MODEM.write('0');
+        MODEM.write(ITOHEX(c>>4));
+      } else {
+        _bufferUTF8[_indexUTF8++]=c;
+        if (_indexUTF8==2 && (_bufferUTF8[0]&0xE0) == 0xC0) {
+          MODEM.write('0');
+          MODEM.write(ITOHEX(_bufferUTF8[0]>>2));
+          MODEM.write(ITOHEX((_bufferUTF8[0]<<2)|((c>>4)&0x3)));
+        } else if (_indexUTF8==3 && (_bufferUTF8[0]&0xF0) == 0xE0) {
+          MODEM.write(ITOHEX(_bufferUTF8[0]));
+          MODEM.write(ITOHEX(_bufferUTF8[1]>>2));
+          MODEM.write(ITOHEX((_bufferUTF8[1]<<2)|((c>>4)&0x3)));
+        } else if (_indexUTF8==4) { // Missing in UCS2, output SPC
+          MODEM.write('0');
+          MODEM.write('0');
+          MODEM.write('2');
+          c=0;
+        } else {
+          return 1;
+        }
+      }
+      _indexUTF8=0;
+      c = ITOHEX(c);
+    }
     return MODEM.write(c);
   }
-
   return 0;
 }
 
 int NB_SMS::beginSMS(const char* to)
 {
-  MODEM.sendf("AT+CMGS=\"%s\"", to);
+#define  MODEMWRITE(x) for(char*iptr=x;*iptr!=0;iptr++) MODEM.write(*iptr)
+  MODEMWRITE("AT+CMGS=\"");
+  if (_charset==SMS_CHARSET_UCS2 && *to == '+') {
+    MODEMWRITE("002B");
+    to++;
+  }
+  while (*to!=0) {
+    if (_charset==SMS_CHARSET_UCS2) {
+      MODEMWRITE("003");
+    }
+    MODEM.write(*to++);
+  }
+  MODEM.send("\"");
   if (MODEM.waitForResponse(100) == 2) {
     _smsTxActive = false;
 
     return (_synch) ? 0 : 2;
   }
 
-#ifndef NO_SMS_CHARSET
   _indexUTF8=0;
-#endif
   _smsTxActive = true;
 
   return 1;
@@ -172,13 +238,11 @@ int NB_SMS::endSMS()
   int r;
 
   if (_smsTxActive) {
-#ifndef NO_SMS_CHARSET
-    // Echo remaining content of UTF8 buffer
+    // Echo remaining content of UTF8 buffer, empty if no conversion
     for (r=0; r < _indexUTF8; MODEM.write(_bufferUTF8[r++]));
     _indexUTF8=0;
-#endif
     MODEM.write(26);
-
+    
     if (_synch) {
       r = MODEM.waitForResponse(3*60*1000);
     } else {
@@ -206,6 +270,8 @@ int NB_SMS::available()
 
     if (_state == SMS_STATE_IDLE) {
       _state = SMS_STATE_LIST_MESSAGES;
+      _incomingBuffer = "";
+      _prevSmsEndIndex = 0;
     }
 
     if (_synch) {
@@ -220,6 +286,7 @@ int NB_SMS::available()
     if (r != 1) {
       return 0;
     } 
+    _smsIndex = _incomingBuffer.indexOf("+CMGL: ",_prevSmsEndIndex);
   }
 
   if (_incomingBuffer.startsWith("+CMGL: ")) {
@@ -233,9 +300,10 @@ int NB_SMS::available()
       _smsDataEndIndex = _incomingBuffer.length() - 1;
     }
 
-    return (_smsDataEndIndex - _smsDataIndex) + 1;
+    return (dataEndIndex - _smsDataIndex);
   } else {
     _incomingBuffer = "";
+    _prevSmsEndIndex = 0;
   }
 
   return 0;
@@ -244,11 +312,15 @@ int NB_SMS::available()
 int NB_SMS::remoteNumber(char* number, int nlength)
 {
   #define PHONE_NUMBER_START_SEARCH_PATTERN "\"REC UNREAD\",\""
-  int phoneNumberStartIndex = _incomingBuffer.indexOf(PHONE_NUMBER_START_SEARCH_PATTERN);
+  int phoneNumberStartIndex = _incomingBuffer.indexOf(PHONE_NUMBER_START_SEARCH_PATTERN,_smsIndex);
 
   if (phoneNumberStartIndex != -1) {
     int i = phoneNumberStartIndex + sizeof(PHONE_NUMBER_START_SEARCH_PATTERN) - 1;
 
+    if (_charset==SMS_CHARSET_UCS2 && _incomingBuffer.substring(i,i+4)=="002B") {
+      *number++ = '+';
+      i += 4;
+    }
     while (i < (int)_incomingBuffer.length() && nlength > 1) {
       char c = _incomingBuffer[i];
 
@@ -256,6 +328,10 @@ int NB_SMS::remoteNumber(char* number, int nlength)
         break;
       }
 
+      if (_charset==SMS_CHARSET_UCS2) {
+        i += 3;
+        c = _incomingBuffer[i];
+      }
       *number++ = c;
       nlength--;
       i++;
@@ -272,27 +348,44 @@ int NB_SMS::remoteNumber(char* number, int nlength)
 
 int NB_SMS::read()
 {
-#ifndef NO_SMS_CHARSET
   if (*_ptrUTF8 != 0) {
     return *_ptrUTF8++;
   }
-  if (_smsDataIndex < _incomingBuffer.length() && _smsDataIndex <= _smsDataEndIndex) {
+  if (_prevSmsEndIndex < _smsDataIndex) {
+    _prevSmsEndIndex = _incomingBuffer.indexOf("\r\n+CMGL: ",_smsDataIndex);
+    if (_prevSmsEndIndex == -1) {
+      _prevSmsEndIndex = _incomingBuffer.length();
+    }
+  }
+  if (_smsDataIndex < _incomingBuffer.length() && _smsDataIndex < _prevSmsEndIndex) {
     char c = _incomingBuffer[_smsDataIndex++];
-    if (c >= 0x80 || c <= 0x24 || (c&0x1F) == 0 || (c&0x1F) >= 0x1B) {
-      for (auto &smschar : _smsUTF8map) {
-        if (c == smschar.smsc) {
-          _ptrUTF8=smschar.utf8;
+    if (_charset == SMS_CHARSET_GSM
+        && (c >= 0x80 || c <= 0x24 || (c&0x1F) == 0 || (c&0x1F) >= 0x1B)) {
+      for (auto &gsmchar : _gsmUTF8map) {
+        if (c == gsmchar.gsmc) {
+          _ptrUTF8 = gsmchar.utf8;
           return *_ptrUTF8++;
         }
       }
     }
+    if (_charset == SMS_CHARSET_UCS2) {
+      c = (HEXTONYBBLE(_incomingBuffer[_smsDataIndex+2])<<4)
+          | HEXTONYBBLE(_incomingBuffer[_smsDataIndex+3]);
+      if (strncmp(&_incomingBuffer[_smsDataIndex],"008",3)>=0) {
+        _ptrUTF8 = _bufferUTF8+1;
+        _bufferUTF8[2] = 0;
+        _bufferUTF8[1] = (c&0x3F)|0x80;
+        c = 0xC0 | (HEXTONYBBLE(_incomingBuffer[_smsDataIndex+1])<<2)
+            | (HEXTONYBBLE(_incomingBuffer[_smsDataIndex+2])>>2);
+        if (strncmp(&_incomingBuffer[_smsDataIndex],"08",2)>=0) {
+          _ptrUTF8 = _bufferUTF8;
+          _bufferUTF8[0] = c & (0x80|0x3F);
+          c = 0xE0 | HEXTONYBBLE(_incomingBuffer[_smsDataIndex]);
+        }
+      }
+      _smsDataIndex += 4;
+    }
     return c;
-#else
-  int bufferLength = _incomingBuffer.length();
-
-  if (_smsDataIndex < bufferLength && _smsDataIndex <= _smsDataEndIndex) {
-    return _incomingBuffer[_smsDataIndex++];
-#endif
   }
 
   return -1;
@@ -300,24 +393,37 @@ int NB_SMS::read()
 
 int NB_SMS::peek()
 {
-#ifndef NO_SMS_CHARSET
   if (*_ptrUTF8 != 0) {
     return *_ptrUTF8;
   }
-  if (_smsDataIndex < _incomingBuffer.length() && _smsDataIndex <= _smsDataEndIndex) {
-    char c = _incomingBuffer[_smsDataIndex];
-    if (c <= 0x24 || c >= 0x80 || (c&0x1F) == 0 || (c&0x1F) >= 0x1B) {
-      for (auto &smschar : _smsUTF8map) {
-        if (c == smschar.smsc) {
-          return smschar.utf8[0];
+  if (_prevSmsEndIndex < _smsDataIndex) {
+    _prevSmsEndIndex = _incomingBuffer.indexOf("\r\n+CMGL: ",_smsDataIndex);
+    if (_prevSmsEndIndex == -1) {
+      _prevSmsEndIndex = _incomingBuffer.length();
+    }
+  }
+  if (_smsDataIndex < _incomingBuffer.length() && _smsDataIndex < _prevSmsEndIndex) {
+    char c = _incomingBuffer[_smsDataIndex++];
+    if (_charset == SMS_CHARSET_GSM
+        && (c >= 0x80 || c <= 0x24 || (c&0x1F) == 0 || (c&0x1F) >= 0x1B)) {
+      for (auto &gsmchar : _gsmUTF8map) {
+        if (c == gsmchar.gsmc) {
+          return gsmchar.utf8[0];
+        }
+      }
+    }
+    if (_charset == SMS_CHARSET_UCS2) {
+      c = (HEXTONYBBLE(_incomingBuffer[_smsDataIndex+2])<<4)
+          | HEXTONYBBLE(_incomingBuffer[_smsDataIndex+3]);
+      if (strncmp(&_incomingBuffer[_smsDataIndex],"008",3)>=0) {
+        c = 0xC0 | (HEXTONYBBLE(_incomingBuffer[_smsDataIndex+1])<<2)
+            | (HEXTONYBBLE(_incomingBuffer[_smsDataIndex+2])>>2);
+        if (strncmp(&_incomingBuffer[_smsDataIndex],"08",2)>=0) {
+          c = 0xE0 | HEXTONYBBLE(_incomingBuffer[_smsDataIndex]);
         }
       }
     }
     return c;
-#else
-  if (_smsDataIndex < (int)_incomingBuffer.length() && _smsDataIndex <= _smsDataEndIndex) {
-    return _incomingBuffer[_smsDataIndex];
-#endif
   }
 
   return -1;
@@ -327,9 +433,7 @@ void NB_SMS::flush()
 {
   int smsIndexEnd = _incomingBuffer.indexOf(',');
 
-#ifndef NO_SMS_CHARSET
   _ptrUTF8 = "";
-#endif
   if (smsIndexEnd != -1) {
     while (MODEM.ready() == 0);
 
@@ -343,9 +447,7 @@ void NB_SMS::flush()
 
 void NB_SMS::clear()
 {
-#ifndef NO_SMS_CHARSET
   _ptrUTF8 = "";
-#endif
 
   while (MODEM.ready() == 0);
 
