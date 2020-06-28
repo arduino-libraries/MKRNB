@@ -140,6 +140,9 @@ int NB_SMS::available()
   }
 
   if (_incomingBuffer.startsWith("+CMGL: ")) {
+
+    _incomingBuffer.remove(0, 7);
+
     _smsDataIndex = _incomingBuffer.indexOf('\n') + 1;
 
     _smsDataEndIndex = _incomingBuffer.indexOf("\r\n+CMGL: ",_smsDataIndex);
@@ -217,6 +220,5 @@ void NB_SMS::flush()
     if (_synch) {
       MODEM.waitForResponse(55000);
     }
-    _incomingBuffer.remove(0, _smsDataEndIndex);
   }
 }
