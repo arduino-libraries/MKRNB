@@ -94,7 +94,7 @@ int NB_SMS::endSMS()
 
   if (_smsTxActive) {
     MODEM.write(26);
-    
+
     if (_synch) {
       r = MODEM.waitForResponse(3*60*1000);
     } else {
