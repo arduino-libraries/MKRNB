@@ -41,7 +41,7 @@ NB_SMS::NB_SMS(bool synch) :
   _charset(SMS_CHARSET_IRA),
   _bufferUTF8({0,0,0,0}),
   _indexUTF8(0),
-  _ptrUTF8(""),
+  _ptrUTF8("")
 {
 }
 
