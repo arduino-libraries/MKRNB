@@ -209,13 +209,12 @@ int NB_SMS::peek()
 
 void NB_SMS::flush()
 {
-  int smsIndexStart = _incomingBuffer.indexOf(' ');
   int smsIndexEnd = _incomingBuffer.indexOf(',');
 
-  if (smsIndexStart != -1 && smsIndexEnd != -1) {
+  if (smsIndexEnd != -1) {
     while (MODEM.ready() == 0);
 
-    MODEM.sendf("AT+CMGD=%s", _incomingBuffer.substring(smsIndexStart + 1, smsIndexEnd).c_str());
+    MODEM.sendf("AT+CMGD=%s", _incomingBuffer.substring(0, smsIndexEnd).c_str());
 
     if (_synch) {
       MODEM.waitForResponse(55000);
