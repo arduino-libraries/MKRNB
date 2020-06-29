@@ -346,17 +346,19 @@ int NB_SMS::read()
     return *_ptrUTF8++;
   }
   if (_smsDataIndex < _incomingBuffer.length() && _smsDataIndex <= _smsDataEndIndex) {
-    char c = _incomingBuffer[_smsDataIndex++];
-    if (_charset == SMS_CHARSET_GSM
-        && (c >= 0x80 || c <= 0x24 || (c&0x1F) == 0 || (c&0x1F) >= 0x1B)) {
-      for (auto &gsmchar : _gsmUTF8map) {
-        if (c == gsmchar.gsmc) {
-          _ptrUTF8 = gsmchar.utf8;
-          return *_ptrUTF8++;
+    char c;
+    if (_charset != SMS_CHARSET_UCS2) {
+      c = _incomingBuffer[_smsDataIndex++];
+      if (_charset == SMS_CHARSET_GSM
+          && (c >= 0x80 || c <= 0x24 || (c&0x1F) == 0 || (c&0x1F) >= 0x1B)) {
+        for (auto &gsmchar : _gsmUTF8map) {
+          if (c == gsmchar.gsmc) {
+            _ptrUTF8 = gsmchar.utf8;
+            return *_ptrUTF8++;
+          }
         }
       }
-    }
-    if (_charset == SMS_CHARSET_UCS2) {
+    } else {
       c = (HEXTONYBBLE(_incomingBuffer[_smsDataIndex+2])<<4)
           | HEXTONYBBLE(_incomingBuffer[_smsDataIndex+3]);
       if (strncmp(&_incomingBuffer[_smsDataIndex],"008",3)>=0) {
