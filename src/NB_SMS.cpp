@@ -317,16 +317,15 @@ int NB_SMS::remoteNumber(char* number, int nlength)
       i += 4;
     }
     while (i < (int)_incomingBuffer.length() && nlength > 1) {
+      if (_charset==SMS_CHARSET_UCS2) {
+        i += 3;
+      }
       char c = _incomingBuffer[i];
 
       if (c == '"') {
         break;
       }
 
-      if (_charset==SMS_CHARSET_UCS2) {
-        i += 3;
-        c = _incomingBuffer[i];
-      }
       *number++ = c;
       nlength--;
       i++;
