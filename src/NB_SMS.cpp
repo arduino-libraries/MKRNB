@@ -104,7 +104,7 @@ int NB_SMS::setCharset(const char* charset)
   } else if (strcmp(charset,"GSM")==0) {
     newcharset = SMS_CHARSET_GSM;
   } else if (strcmp(charset,"UCS2")==0) {
-    newcharset = SMS_CHARSET_GSM;
+    newcharset = SMS_CHARSET_UCS2;
   } else {
     return 0;    
   }
