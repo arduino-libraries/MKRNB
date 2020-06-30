@@ -176,16 +176,20 @@ size_t NB_SMS::write(uint8_t c)
 
 int NB_SMS::beginSMS(const char* to)
 {
-#define  MODEMWRITE(x) for(char*iptr=x;*iptr!=0;iptr++) MODEM.write(*iptr)
   setCharset();
-  MODEMWRITE("AT+CMGS=\"");
+  for(char*iptr="AT+CMGS=\"";*iptr!=0;MODEM.write(*iptr++));
   if (_charset==SMS_CHARSET_UCS2 && *to == '+') {
-    MODEMWRITE("002B");
+    MODEM.write('0');
+    MODEM.write('0');
+    MODEM.write('2');
+    MODEM.write('B');
     to++;
   }
   while (*to!=0) {
     if (_charset==SMS_CHARSET_UCS2) {
-      MODEMWRITE("003");
+      MODEM.write('0');
+      MODEM.write('0');
+      MODEM.write('3');
     }
     MODEM.write(*to++);
   }
