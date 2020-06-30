@@ -28,11 +28,13 @@
 enum {
   SMS_STATE_IDLE,
   SMS_STATE_LIST_MESSAGES,
-  SMS_STATE_WAIT_LIST_MESSAGES_RESPONSE,
-  SMS_CHARSET_IRA,
-  SMS_CHARSET_GSM,
-  SMS_CHARSET_UCS2,
+  SMS_STATE_WAIT_LIST_MESSAGES_RESPONSE
 };
+
+#define SMS_CHARSET_NONE  'N' 
+#define SMS_CHARSET_IRA   'I'
+#define SMS_CHARSET_GSM   'G'
+#define SMS_CHARSET_UCS2  'U'
 
 NB_SMS::NB_SMS(bool synch) :
   _synch(synch),
@@ -97,24 +99,22 @@ gsm_mapping _gsmXUTF8map[] = {
 
 int NB_SMS::setCharset(const char* charset)
 {
-  int newcharset;
-
-  if (strcmp(charset,"IRA")==0) {
-    newcharset = SMS_CHARSET_IRA;
-  } else if (strcmp(charset,"GSM")==0) {
-    newcharset = SMS_CHARSET_GSM;
-  } else if (strcmp(charset,"UCS2")==0) {
-    newcharset = SMS_CHARSET_UCS2;
+  String readcharset(0);
+  
+  if ( charset == nullptr ) {
+    if ( _charset != SMS_CHARSET_NONE ) {
+      return _charset;
+    }
   } else {
-    return 0;    
+    MODEM.sendf("AT+CSCS=\"%s\"", charset);
+    if (MODEM.waitForResponse() != 1) {
+      return 0;
   }
-  MODEM.sendf("AT+CSCS=\"%s\"", charset);
-  if (MODEM.waitForResponse() == 1) {
-    _charset = newcharset;
-    return 1;
-  }
-
-  return 0;
+  MODEM.sendf("AT+CSCS?");
+  if (MODEM.waitForResponse(100,readcharset) != 1) {
+    return 0;
+  _charset=readcharset[0];
+  return _charset;
 }
 
 
@@ -175,6 +175,7 @@ size_t NB_SMS::write(uint8_t c)
 int NB_SMS::beginSMS(const char* to)
 {
 #define  MODEMWRITE(x) for(char*iptr=x;*iptr!=0;iptr++) MODEM.write(*iptr)
+  setCharset();
   MODEMWRITE("AT+CMGS=\"");
   if (_charset==SMS_CHARSET_UCS2 && *to == '+') {
     MODEMWRITE("002B");
@@ -268,6 +269,7 @@ int NB_SMS::available()
     int r;
 
     if (_state == SMS_STATE_IDLE) {
+      setCharset();
       _state = SMS_STATE_LIST_MESSAGES;
     }
 

@@ -37,10 +37,10 @@ public:
   size_t write(uint8_t c);
 
   /** Select SMS charset
-      @param charset     Character set, one of "IRA" (default), "GSM", or "UCS2"
+      @param charset     Character set, one of "IRA" (default), "GSM", or "UCS2", reads from modem if null.
       @return returns 1 on success and 0 on error
     */
-  int setCharset(const char* charset);
+  int setCharset(const char* charset = nullptr);
 
   /** Begin a SMS to send it
       @param to     Destination
