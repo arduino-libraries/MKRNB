@@ -38,7 +38,7 @@ public:
 
   /** Select SMS charset
       @param charset     Character set, one of "IRA" (default), "GSM", or "UCS2", reads from modem if null.
-      @return returns 1 on success and 0 on error
+      @return returns first char of charset identifier on success and 0 on error
     */
   int setCharset(const char* charset = nullptr);
 
