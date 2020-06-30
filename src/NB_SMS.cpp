@@ -31,16 +31,16 @@ enum {
   SMS_STATE_WAIT_LIST_MESSAGES_RESPONSE
 };
 
-#define SMS_CHARSET_NONE  'N' 
 #define SMS_CHARSET_IRA   'I'
 #define SMS_CHARSET_GSM   'G'
+#define SMS_CHARSET_NONE  'N' 
 #define SMS_CHARSET_UCS2  'U'
 
 NB_SMS::NB_SMS(bool synch) :
   _synch(synch),
   _state(SMS_STATE_IDLE),
   _smsTxActive(false),
-  _charset(SMS_CHARSET_IRA),
+  _charset(SMS_CHARSET_NONE),
   _bufferUTF8({0,0,0,0}),
   _indexUTF8(0),
   _ptrUTF8("")
