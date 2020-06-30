@@ -112,11 +112,12 @@ int NB_SMS::setCharset(const char* charset)
     }
   }
   MODEM.sendf("AT+CSCS?");
-  if (MODEM.waitForResponse(100,&readcharset) != 1) {
-    return 0;
+  if (MODEM.waitForResponse(100,&readcharset) == 1
+      && readcharset.startsWith("+CSCS: \"")) {
+    _charset = readcharset[8];
+    return _charset;
   }
-  _charset=readcharset[0];
-  return _charset;
+  return 0;
 }
 
 
@@ -138,7 +139,7 @@ size_t NB_SMS::write(uint8_t c)
         }
         // No UTF8 match, echo buffer
         for (c=0; c < _indexUTF8; MODEM.write(_bufferUTF8[c++]));
-        _indexUTF8=0;
+        _indexUTF8 = 0;
       }
       return 1;
     }
@@ -166,7 +167,7 @@ size_t NB_SMS::write(uint8_t c)
           return 1;
         }
       }
-      _indexUTF8=0;
+      _indexUTF8 = 0;
       c = ITOHEX(c);
     }
     return MODEM.write(c);
@@ -200,7 +201,7 @@ int NB_SMS::beginSMS(const char* to)
     return (_synch) ? 0 : 2;
   }
 
-  _indexUTF8=0;
+  _indexUTF8 = 0;
   _smsTxActive = true;
 
   return 1;
@@ -244,7 +245,7 @@ int NB_SMS::endSMS()
   if (_smsTxActive) {
     // Echo remaining content of UTF8 buffer, empty if no conversion
     for (r=0; r < _indexUTF8; MODEM.write(_bufferUTF8[r++]));
-    _indexUTF8=0;
+    _indexUTF8 = 0;
     MODEM.write(26);
     
     if (_synch) {
