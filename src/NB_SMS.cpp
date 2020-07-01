@@ -43,7 +43,7 @@ NB_SMS::NB_SMS(bool synch) :
   _charset(SMS_CHARSET_NONE),
   _bufferUTF8({0,0,0,0}),
   _indexUTF8(0),
-  _ptrUTF8("")
+  _ptrUTF8{0}
 {
 }
 
@@ -178,7 +178,7 @@ size_t NB_SMS::write(uint8_t c)
 int NB_SMS::beginSMS(const char* to)
 {
   setCharset();
-  for(char*iptr="AT+CMGS=\"";*iptr!=0;MODEM.write(*iptr++));
+  for(const char*iptr="AT+CMGS=\"";*iptr!=0;MODEM.write(*iptr++));
   if (_charset==SMS_CHARSET_UCS2 && *to == '+') {
     MODEM.write('0');
     MODEM.write('0');
@@ -354,7 +354,7 @@ int NB_SMS::read()
   if (*_ptrUTF8 != 0) {
     return *_ptrUTF8++;
   }
-  if (_smsDataIndex < _incomingBuffer.length() && _smsDataIndex <= _smsDataEndIndex) {
+  if (_smsDataIndex < (signed)_incomingBuffer.length() && _smsDataIndex <= _smsDataEndIndex) {
     char c;
     if (_charset != SMS_CHARSET_UCS2) {
       c = _incomingBuffer[_smsDataIndex++];
@@ -395,7 +395,7 @@ int NB_SMS::peek()
   if (*_ptrUTF8 != 0) {
     return *_ptrUTF8;
   }
-  if (_smsDataIndex < (int)_incomingBuffer.length() && _smsDataIndex <= _smsDataEndIndex) {
+  if (_smsDataIndex < (signed)_incomingBuffer.length() && _smsDataIndex <= _smsDataEndIndex) {
     char c = _incomingBuffer[_smsDataIndex++];
     if (_charset == SMS_CHARSET_GSM
         && (c >= 0x80 || c <= 0x24 || (c&0x1F) == 0 || (c&0x1F) >= 0x1B)) {
