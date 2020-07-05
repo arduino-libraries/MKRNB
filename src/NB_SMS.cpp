@@ -128,8 +128,9 @@ int NB_SMS::available()
 
     if (_synch) {
       unsigned long start = millis();
-      while ((r = ready()) == 0 && (millis() - start) < 3*60*1000)
+      while ((r = ready()) == 0 && (millis() - start) < 3*60*1000) {
         delay(100);
+      }
     } else {
       r = ready();
     }
