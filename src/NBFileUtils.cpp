@@ -1,5 +1,4 @@
 #include "Modem.h"
-//#include "Uart.h"
 #include "NBFileUtils.h"
 
 NBFileUtils::NBFileUtils(bool debug)
@@ -36,19 +35,36 @@ bool NBFileUtils::begin(const bool restart)
 int NBFileUtils::_getFileList()
 {
     String response;
+    int status = 0;
 
-    MODEM.send("AT+ULSTFILE=0");
-    int status = MODEM.waitForResponse(5000, &response);
-    if (!response.length())
-        return -1;
+    while (!status) {
+        MODEM.send("AT+ULSTFILE=0");
+        status = MODEM.waitForResponse(5000, &response);
 
-    if (status) {
-        String list = response.substring(11);
-        list.trim();
-        _files = list;
+        if (status) {
+            String list = response.substring(11);
+            list.trim();
+            _files = list;
+        }
     }
-
     return status;
+}
+
+int NBFileUtils::existFile(const String filename)
+{
+    _getFileList();
+    _countFiles();
+
+    String files[_count];
+
+    int num = listFiles(files);
+
+    for (int i = 0; i<num; i++) {
+        if (files[i]==filename) {
+            return 1;
+        }
+    }
+   return 0;
 }
 
 void NBFileUtils::_countFiles()
@@ -130,7 +146,6 @@ uint32_t NBFileUtils::createFile(const String filename, const char buf[], uint32
     if (sizeFile) {
         return sizeFile;
     }
-
     return downloadFile(filename, buf, size, true);
 }
 
@@ -302,7 +317,7 @@ int NBFileUtils::deleteFiles()
     int n = 0;
     String files[_count];
 
-    listFiles(files);
+    int num = listFiles(files);
 
     while (_count > 0) {
         n += deleteFile(files[_count - 1]);
@@ -318,11 +333,9 @@ uint32_t NBFileUtils::listFile(const String filename) const
     uint32_t size = 0;
 
     MODEM.sendf("AT+ULSTFILE=2,\"%s\"", filename.c_str());
-    res = MODEM.waitForResponse(300, &response);
+    res = MODEM.waitForResponse(5000, &response);
     if (res == 1) {
         String content = response.substring(11);
-        Serial1.print("Response from listFile: ");
-        Serial1.println(content);
         size = content.toInt();
     }
 

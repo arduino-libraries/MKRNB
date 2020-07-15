@@ -10,6 +10,8 @@ public:
     bool begin(const bool restart);
     bool begin() { return begin(true); };
 
+    int existFile(const String filename);
+
     uint32_t fileCount() const { return _count; };
     size_t listFiles(String list[]) const;
     uint32_t listFile(const String filename) const;
