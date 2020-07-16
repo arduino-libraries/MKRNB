@@ -34,7 +34,7 @@ class ModemClass {
 public:
   ModemClass(Uart& uart, unsigned long baud, int resetPin, int powerOnPin);
 
-  int begin(bool restart = true);
+  int begin(bool restart = false);
   void end();
 
   void debug();

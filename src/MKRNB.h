@@ -31,4 +31,6 @@
 #include "NBSSLClient.h"
 #include "NBUdp.h"
 
+#include "NBFileUtils.h"
+
 #endif
