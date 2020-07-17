@@ -297,9 +297,6 @@ bool NBFileUtils::deleteFile(const String filename)
 {
     String response;
 
-    if (listFile(filename) == 0)
-        return false;
-
     MODEM.sendf("AT+UDELFILE=\"%s\"", filename.c_str());
     auto status = MODEM.waitForResponse(100, &response);
 
