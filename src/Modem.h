@@ -25,6 +25,18 @@
 
 #include <Arduino.h>
 
+/* The NB 1500 does not connect the SARA V_INT pin so that it can be monitored.
+   The below constants and associated code enables connecting SARA_VINT to a digital input
+   using a level shifter (1.8V to 5V) or simply a MOS transistor, say a 2N7000. 
+   The code does rudimentary tracking of the on/off state if this is not available.
+*/ 
+#define SARA_VINT_OFF (-1)
+#define SARA_VINT_ON  (-2)
+
+#ifndef SARA_VINT
+#define SARA_VINT SARA_VINT_OFF
+#endif
+
 class ModemUrcHandler {
 public:
   virtual void handleUrc(const String& urc) = 0;
@@ -32,7 +44,7 @@ public:
 
 class ModemClass {
 public:
-  ModemClass(Uart& uart, unsigned long baud, int resetPin, int powerOnPin);
+  ModemClass(Uart& uart, unsigned long baud, int resetPin, int powerOnPin, int vIntPin=SARA_VINT);
 
   int begin(bool restart = false);
   void end();
@@ -45,6 +57,9 @@ public:
 
   int noop();
   int reset();
+  int shutdown();
+  int isPowerOn();
+  void setVIntPin(int vIntPin);
 
   size_t write(uint8_t c);
   size_t write(const uint8_t*, size_t);
@@ -69,6 +84,7 @@ private:
   unsigned long _baud;
   int _resetPin;
   int _powerOnPin;
+  int _vIntPin;
   unsigned long _lastResponseOrUrcMillis;
 
   enum {

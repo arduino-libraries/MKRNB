@@ -24,11 +24,12 @@
 ModemUrcHandler* ModemClass::_urcHandlers[MAX_URC_HANDLERS] = { NULL };
 Print* ModemClass::_debugPrint = NULL;
 
-ModemClass::ModemClass(Uart& uart, unsigned long baud, int resetPin, int powerOnPin) :
+ModemClass::ModemClass(Uart& uart, unsigned long baud, int resetPin, int powerOnPin, int vIntPin) :
   _uart(&uart),
   _baud(baud),
   _resetPin(resetPin),
   _powerOnPin(powerOnPin),
+  _vIntPin(vIntPin),
   _lastResponseOrUrcMillis(0),
   _atCommandState(AT_COMMAND_IDLE),
   _ready(1),
@@ -37,19 +38,42 @@ ModemClass::ModemClass(Uart& uart, unsigned long baud, int resetPin, int powerOn
   _buffer.reserve(64);
 }
 
+void ModemClass::setVIntPin(int vIntPin)
+{
+  // Allow setting only if unset, used to track state
+  if (_vIntPin==SARA_VINT_OFF || _vIntPin==SARA_VINT_ON) {
+    _vIntPin=vIntPin;
+  }
+}
+
+int ModemClass::isPowerOn()
+{
+  if (_vIntPin==SARA_VINT_OFF) {
+    return 0;
+  } else if (_vIntPin==SARA_VINT_ON) {
+    return 1;
+  }
+  return digitalRead(_vIntPin);
+}
+
 int ModemClass::begin(bool restart)
 {
+  // datasheet warns not to use _resetPin, this may lead to an unrecoverable state
+  digitalWrite(_resetPin, LOW);
+
+  if (restart) {
+    shutdown();
+    end();
+  }
+
   _uart->begin(_baud > 115200 ? 115200 : _baud);
 
   // power on module
-  pinMode(_powerOnPin, OUTPUT);
-  digitalWrite(_powerOnPin, HIGH);
-
-  if (_resetPin > -1 && restart) {
-    pinMode(_resetPin, OUTPUT);
-    digitalWrite(_resetPin, HIGH);
-    delay(100);
-    digitalWrite(_resetPin, LOW);
+  if (!isPowerOn()) {
+    digitalWrite(_powerOnPin, HIGH);
+    delay(150); // Datasheet says power-on pulse should be >=150ms, <=3200ms
+    digitalWrite(_powerOnPin, LOW);
+    setVIntPin(SARA_VINT_ON);
   } else {
     if (!autosense()) {
       return 0;
@@ -78,13 +102,29 @@ int ModemClass::begin(bool restart)
   return 1;
 }
 
+int ModemClass::shutdown()
+{
+  // AT command shutdown
+  if (isPowerOn()) {
+    send("AT+CPWROFF");
+    if (waitForResponse(40000) != 1) {
+      return 0;
+    }
+    setVIntPin(SARA_VINT_OFF);
+  }
+  return 1;
+}
+
 void ModemClass::end()
 {
   _uart->end();
-  digitalWrite(_resetPin, HIGH);
-
-  // power off module
-  digitalWrite(_powerOnPin, LOW);
+  // Hardware pin power off
+  if (isPowerOn()) {
+    digitalWrite(_powerOnPin, HIGH);
+    delay(1500); // Datasheet says power-off pulse should be >=1500ms
+    digitalWrite(_powerOnPin, LOW);
+    setVIntPin(SARA_VINT_OFF);
+  }
 }
 
 void ModemClass::debug()
@@ -340,4 +380,4 @@ void ModemClass::setBaudRate(unsigned long baud)
   _baud = baud;
 }
 
-ModemClass MODEM(SerialSARA, 115200, SARA_RESETN, SARA_PWR_ON);
+ModemClass MODEM(SerialSARA, 115200, SARA_RESETN, SARA_PWR_ON, SARA_VINT);
