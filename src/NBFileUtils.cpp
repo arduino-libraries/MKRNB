@@ -12,8 +12,7 @@ bool NBFileUtils::begin(const bool restart)
 {
     int status;
 
-    if (restart)
-        MODEM.begin();
+    MODEM.begin(restart);
 
     if (_debug) {
         MODEM.debug();
