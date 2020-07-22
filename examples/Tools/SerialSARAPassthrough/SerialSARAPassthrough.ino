@@ -10,12 +10,11 @@
    Circuit:
    - MKR NB 1500 board
    - Antenna
-   - 1500 mAh or higher lipo battery connected
    - SIM card
 
-   Make sure the Serial Monitor's line ending is set to "Both NL and CR"
+   Make sure the Serial Monitor's line ending is set to "Both NL and CR" or "Carriage Return"
 
-   create 11 December 2017
+   created 11 December 2017
    Sandeep Mistry
 */
 
@@ -23,15 +22,15 @@
 unsigned long baud = 115200;
 
 void setup() {
-  // enable the POW_ON pin
+  // NEVER EVER use RESET_N
+  pinMode(SARA_RESETN, OUTPUT);
+  digitalWrite(SARA_RESETN, LOW);
+
+  // Send Poweron pulse
   pinMode(SARA_PWR_ON, OUTPUT);
   digitalWrite(SARA_PWR_ON, HIGH);
-
-  // reset the ublox module
-  pinMode(SARA_RESETN, OUTPUT);
-  digitalWrite(SARA_RESETN, HIGH);
-  delay(100);
-  digitalWrite(SARA_RESETN, LOW);
+  delay(150);
+  digitalWrite(SARA_PWR_ON, LOW);
 
   Serial.begin(baud);
   SerialSARA.begin(baud);

@@ -124,17 +124,17 @@ int NB::isAccessAlive()
 
 bool NB::shutdown()
 {
-  if (_state == NB_READY) {
-    MODEM.send("AT+CPWROFF");
-    MODEM.waitForResponse(40000);
+  // Attempt AT command shutdown
+  if (_state == NB_READY && MODEM.shutdown()) {
+    _state = NB_OFF;
+    return true;
   }
-  MODEM.end();
-  _state = NB_OFF;
-  return true;
+  return false;
 }
 
 bool NB::secureShutdown()
 {
+  // Hardware power off
   MODEM.end();
   _state = NB_OFF;
   return true;
