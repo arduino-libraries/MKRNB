@@ -178,7 +178,7 @@ size_t ModemClass::write(const uint8_t* buf, size_t size)
 {
   size_t result = _uart->write(buf, size);
 
-  // the R410m echos the binary data, when we don't what it to so
+  // the R410m echoes the binary data - we don't want it to do so
   size_t ignoreCount = 0;
 
   while (ignoreCount < result) {
