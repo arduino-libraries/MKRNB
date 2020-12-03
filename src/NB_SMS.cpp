@@ -247,11 +247,9 @@ int NB_SMS::endSMS()
     for (r=0; r < _indexUTF8; MODEM.write(_bufferUTF8[r++]));
     _indexUTF8 = 0;
     MODEM.write(26);
-    
+
     if (_synch) {
-      while ((r = MODEM.ready()) == 0) {
-        delay(100);
-      }
+      r = MODEM.waitForResponse(3*60*1000);
     } else {
       r = MODEM.ready();
     }
