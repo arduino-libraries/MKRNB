@@ -1,6 +1,6 @@
 /*
 
- This sketch test the MKR NB 1500 board's ability to connect to a
+ This sketch tests the MKR NB 1500 board's ability to connect to a
  GPRS network. It asks for APN information through the
  serial monitor and tries to connect to example.org.
 
@@ -35,7 +35,7 @@ char url[] = "example.org";
 char urlproxy[] = "http://example.org";
 char path[] = "/";
 
-// variable for save response obtained
+// variable to save obtained response
 String response = "";
 
 // use a proxy
@@ -75,7 +75,7 @@ void loop() {
     readSerial(proxy);
     Serial.println(proxy);
 
-    // if user introduced a proxy, asks him for proxy port
+    // if user introduced a proxy, asks them for proxy port
     int pport;
     if (proxy[0] != '\0') {
       // read proxy port introduced by user
@@ -103,7 +103,7 @@ void loop() {
       // make a HTTP 1.0 GET request (client sends the request)
       client.print("GET ");
 
-      // if use a proxy, the path is example.org URL
+      // if using a proxy, the path is example.org URL
       if (use_proxy) {
         client.print(urlproxy);
       } else {

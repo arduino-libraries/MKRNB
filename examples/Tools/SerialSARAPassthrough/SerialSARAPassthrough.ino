@@ -2,7 +2,7 @@
    SerialSARAPassthrough sketch
 
    This sketch allows you to send AT commands from the USB CDC serial port
-   of the MKR NB 1500 board to the onboard ublox SARA-R410 celluar module.
+   of the MKR NB 1500 board to the onboard ublox SARA-R410 cellular module.
 
    For a list of supported AT commands see:
    https://www.u-blox.com/sites/default/files/u-blox-CEL_ATCommands_%28UBX-13002752%29.pdf

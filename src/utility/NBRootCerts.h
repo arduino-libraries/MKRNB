@@ -1,5 +1,5 @@
 /*
-  This file is part of the MKR GSM library.
+  This file is part of the MKRNB library.
   Copyright (C) 2018 Arduino SA (http://www.arduino.cc/)
 
   This library is free software; you can redistribute it and/or

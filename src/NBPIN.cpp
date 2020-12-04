@@ -82,7 +82,7 @@ void NBPIN::changePIN(String old, String pin)
 {
   MODEM.sendf("AT+CPWD=\"SC\",\"%s\",\"%s\"", old.c_str(), pin.c_str());
   if (MODEM.waitForResponse(10000) == 1) {
-    Serial.println("Pin changed succesfully.");
+    Serial.println("Pin changed successfully.");
   } else {
     Serial.println("ERROR");
   }

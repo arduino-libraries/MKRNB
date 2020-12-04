@@ -3,7 +3,7 @@
   Udp NTP Client
 
   Get the time from a Network Time Protocol (NTP) time server
-  Demonstrates use of UDP sendPacket and ReceivePacket
+  Demonstrates use of UDP write and parsePacket
   For more on NTP time servers and the messages needed to communicate with them,
   see http://en.wikipedia.org/wiki/Network_Time_Protocol
 
@@ -81,7 +81,7 @@ void loop()
     Udp.read(packetBuffer, NTP_PACKET_SIZE); // read the packet into the buffer
 
     //the timestamp starts at byte 40 of the received packet and is four bytes,
-    // or two words, long. First, esxtract the two words:
+    // or two words, long. First, extract the two words:
 
     unsigned long highWord = word(packetBuffer[40], packetBuffer[41]);
     unsigned long lowWord = word(packetBuffer[42], packetBuffer[43]);
