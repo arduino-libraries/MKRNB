@@ -1,0 +1,31 @@
+name: Compile Examples
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/compile-examples.yml"
+      - "examples/**"
+      - "src/**"
+  push:
+    paths:
+      - ".github/workflows/compile-examples.yml"
+      - "examples/**"
+      - "src/**"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Compile examples
+        uses: arduino/compile-sketches@main
+        with:
+          fqbn: arduino:samd:mkrnb1500
+          libraries: |
+            # Install the WiFi101 library from the local path
+            - source-path: ./
+          sketch-paths: |
+            examples
