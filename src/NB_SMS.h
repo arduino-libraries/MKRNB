@@ -80,7 +80,7 @@ public:
    */
   int peek();
 
-  /** Delete the SMS from Modem memory and proccess answer
+  /** Delete the SMS from Modem memory and process answer
    */
   void flush();
   

@@ -74,7 +74,7 @@ void setup() {
       Serial.println("PIN and PUK locked. Use PIN2/PUK2 in a mobile phone.");
       while (true);
     } else {
-      // SIM does not requires authetication
+      // SIM does not requires authentication
       Serial.println("No pin necessary.");
       auth = true;
     }
@@ -97,13 +97,13 @@ void setup() {
 
 void loop() {
   // Function loop implements pin management user menu
-  // Only if you SIM use pin lock, you can change PIN code
-  // user_op variables save user option
+  // You can only change PIN code if your SIM uses pin lock
 
   Serial.println("Choose an option:\n1 - On/Off PIN.");
   if (PINManager.getPINUsed()) {
     Serial.println("2 - Change PIN.");
   }
+  // save user input to user_op variable
   String user_op = readSerial();
   if (user_op == "1") {
     Serial.println("Enter your PIN code:");
@@ -124,7 +124,7 @@ void loop() {
 }
 
 /*
-  Read input serial
+  Read serial input
  */
 String readSerial() {
   String text = "";
