@@ -127,6 +127,15 @@ void ModemClass::end()
   }
 }
 
+void ModemClass::hardReset()
+{
+  // Hardware pin reset, only use in EMERGENCY
+  digitalWrite(_resetPin, HIGH);
+  delay(1000); // Datasheet says nothing, so guess we wait one second
+  digitalWrite(_resetPin, LOW);
+  setVIntPin(SARA_VINT_OFF);
+}
+
 void ModemClass::debug()
 {
   debug(Serial);
