@@ -36,6 +36,12 @@ public:
     */
   size_t write(uint8_t c);
 
+  /** Select SMS charset
+      @param charset     Character set, one of "IRA" (default), "GSM", or "UCS2", reads from modem if null.
+      @return returns first char of charset identifier on success and 0 on error
+    */
+  int setCharset(const char* charset = nullptr);
+
   /** Begin a SMS to send it
       @param to     Destination
       @return error command if it exists
@@ -77,6 +83,10 @@ public:
   /** Delete the SMS from Modem memory and proccess answer
    */
   void flush();
+  
+  /** Delete all read and sent SMS from Modem memory and process answer
+   */
+  void clear();
 
 private:
   bool _synch;
@@ -85,6 +95,10 @@ private:
   int _smsDataIndex;
   int _smsDataEndIndex;
   bool _smsTxActive;
+  int _charset;
+  char _bufferUTF8[4];
+  int _indexUTF8;
+  const char* _ptrUTF8;
 };
 
 #endif
