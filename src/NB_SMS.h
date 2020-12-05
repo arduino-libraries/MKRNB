@@ -85,8 +85,12 @@ public:
   void flush();
   
   /** Delete all read and sent SMS from Modem memory and process answer
+   * flag=1 preserves sent, unsent, and unread messages
+   * flag=2 preserves unsent and unread messages
+   * flag=3 preserves unread messages
+   * flag=4 preserves no messages
    */
-  void clear();
+  void clear(int flag=2);
 
 private:
   bool _synch;

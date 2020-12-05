@@ -436,13 +436,15 @@ void NB_SMS::flush()
   }
 }
 
-void NB_SMS::clear()
+void NB_SMS::clear(int flag)
 {
   _ptrUTF8 = "";
 
   while (MODEM.ready() == 0);
 
-  MODEM.sendf("AT+CMGD=0,2");
+  if (flag<1 || flag>4) flag = 2;
+
+  MODEM.sendf("AT+CMGD=0,%d",flag);
 
   if (_synch) {
     MODEM.waitForResponse(55000);
