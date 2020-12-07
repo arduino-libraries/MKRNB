@@ -259,7 +259,7 @@ int NBUDP::available()
     return 0;
   }
 
-  return (_rxIndex - _rxSize);
+  return (_rxSize - _rxIndex);
 }
 
 int NBUDP::read()
