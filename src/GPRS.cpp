@@ -153,6 +153,7 @@ int GPRS::ready()
       } else {
         _state = GPRS_STATE_IDLE;
         _status = IDLE;
+        ready = 1;
       }
       break;
     }
