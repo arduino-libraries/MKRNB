@@ -22,6 +22,11 @@
 
 #include <Stream.h>
 
+#define NB_SMS_CLEAR_READ             (1)
+#define NB_SMS_CLEAR_READ_SENT        (2)
+#define NB_SMS_CLEAR_READ_SENT_UNSENT (3)
+#define NB_SMS_CLEAR_ALL              (4)
+
 class NB_SMS : public Stream {
 
 public:
@@ -86,7 +91,7 @@ public:
   
   /** Delete all read and sent SMS from Modem memory and process answer
    */
-  void clear();
+  void clear(int flag = NB_SMS_CLEAR_READ_SENT);
 
 private:
   bool _synch;
