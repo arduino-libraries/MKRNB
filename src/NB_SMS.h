@@ -84,13 +84,12 @@ public:
    */
   void flush();
   
-  /** Delete all read and sent SMS from Modem memory and process answer
-   * flag=1 preserves sent, unsent, and unread messages
-   * flag=2 preserves unsent and unread messages
-   * flag=3 preserves unread messages
-   * flag=4 preserves no messages
-   */
-  void clear(int flag=2);
+  /** Delete all read and sent SMS from Modem memory and process answer */
+#define NB_SMS_CLEAR_READ             1
+#define NB_SMS_CLEAR_READ_SENT        2
+#define NB_SMS_CLEAR_READ_SENT_UNSENT 3 
+#define NB_SMS_CLEAR_ALL              4
+  void clear(int flag=NB_SMS_CLEAR_READ_SENT);
 
 private:
   bool _synch;
