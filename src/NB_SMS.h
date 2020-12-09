@@ -89,7 +89,8 @@ public:
    */
   void flush();
   
-  /** Delete all read and sent SMS from Modem memory and process answer */
+  /** Delete all read and sent SMS from Modem memory and process answer
+   */
   void clear(int flag = NB_SMS_CLEAR_READ_SENT);
 
 private:
