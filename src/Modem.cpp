@@ -131,7 +131,7 @@ void ModemClass::hardReset()
 {
   // Hardware pin reset, only use in EMERGENCY
   digitalWrite(_resetPin, HIGH);
-  delay(1000); // Datasheet says nothing, so guess we wait one second
+  delay(10000); // Datasheet says 10s minimum low pulse on reset pin. 
   digitalWrite(_resetPin, LOW);
   setVIntPin(SARA_VINT_OFF);
 }
