@@ -45,9 +45,9 @@ public:
                          to call repeatedly ready() until you get a result. Default is TRUE.
       @return If synchronous, NB_NetworkStatus_t. If asynchronous, returns 0.
     */
-  NB_NetworkStatus_t begin(const char* pin = 0, bool restart = true, bool synchronous = true);
-  NB_NetworkStatus_t begin(const char* pin, const char* apn, bool restart = true, bool synchronous = true);
-  NB_NetworkStatus_t begin(const char* pin, const char* apn, const char* username, const char* password, bool restart = true, bool synchronous = true);
+  NB_NetworkStatus_t begin(const char* pin = 0, bool restart = false, bool synchronous = true);
+  NB_NetworkStatus_t begin(const char* pin, const char* apn, bool restart = false, bool synchronous = true);
+  NB_NetworkStatus_t begin(const char* pin, const char* apn, const char* username, const char* password, bool restart = false, bool synchronous = true);
 
   /** Check network access status
       @return 1 if Alive, 0 if down
