@@ -290,8 +290,8 @@ size_t NBClient::write(const uint8_t* buf, size_t size)
   while (size) {
     size_t chunkSize = size;
 
-    if (chunkSize > 256) {
-      chunkSize = 256;
+    if (chunkSize > 512) {
+      chunkSize = 512;
     }
 
     command.reserve(19 + chunkSize * 2);
