@@ -42,6 +42,10 @@ public:
   virtual void handleUrc(const String& urc) = 0;
 };
 
+#ifdef ARDUINO_PORTENTA_H7_M7
+typedef UART Uart;
+#endif
+
 class ModemClass {
 public:
   ModemClass(Uart& uart, unsigned long baud, int resetPin, int powerOnPin, int vIntPin=SARA_VINT);
