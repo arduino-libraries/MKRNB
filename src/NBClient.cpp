@@ -285,7 +285,7 @@ size_t NBClient::write(const uint8_t* buf, size_t size)
   size_t written = 0;
   String command;
 
-  command.reserve(19 + (size > 256 ? 256 : size) * 2);
+  command.reserve(19 + (size > 512 ? 512 : size) * 2);
 
   while (size) {
     size_t chunkSize = size;
