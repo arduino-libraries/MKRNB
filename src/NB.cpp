@@ -23,6 +23,14 @@
 
 #include "NB.h"
 
+__attribute__((weak)) void mkr_nb_feed_watchdog()
+{
+    /* This function can be overwritten by a "strong" implementation
+     * in a higher level application, such as the ArduinoIoTCloud
+     * firmware stack.
+     */
+}
+
 enum {
   READY_STATE_SET_ERROR_DISABLED,
   READY_STATE_WAIT_SET_ERROR_DISABLED,
@@ -95,6 +103,8 @@ NB_NetworkStatus_t NB::begin(const char* pin, const char* apn, const char* usern
           _state = ERROR;
           break;
         }
+
+        mkr_nb_feed_watchdog();
 
         delay(100);
       }
