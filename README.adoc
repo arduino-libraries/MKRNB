@@ -18,17 +18,17 @@ UNDER CONSTRUCTION!! BETA! NOT FINISHED! CONTRIBUTE IF YOU CAN! Check the exampl
 Done:
 Constructor: Example: NBMqtt mqtt;
 
-getMQTTerror Get the last MQTT error from the modem.Example : mqtt.getMQTTerror();  
+getMQTTerror Get the last MQTT error from the modem.Example: mqtt.getMQTTerror();  
 
-setMQTTClientID  Set the MQTT client ID : Use your SIM IMEI. Example mqtt.setMQTTClientID("352753090834234");  
+setMQTTClientID  Set the MQTT client ID : Use your SIM IMEI. Example: mqtt.setMQTTClientID("352753090834234");  
 
-setMQTTPort(Int): Set the MQTT Port (Normal is 1883, SSL is 8883(not yet implemented). Example :  mqtt.setMQTTPort(1883);  
+setMQTTPort(Int): Set the MQTT Port (Normal is 1883, SSL is 8883(not yet implemented). Example:  mqtt.setMQTTPort(1883);  
 
 setMQTTUserPassword(String, String): Set Username / Password for the MQTT broker. Example: mqtt.setMQTTUserPassword("username", "password");  
 
 setMQTTbrokerURL(String): Set the MQTT broker URL (DNS is made automatic). Example: mqtt.setMQTTBrokerURL("public.cloud.shiftr.io");   
 
-setMQTTbrokerIP(String): Set the MQTT broker IP (not necessary in general, provide a broker URL!)  
+setMQTTbrokerIP(String): Set the MQTT broker IP (not necessary in general, provide a broker URL!) Example: setMQTTbrokerIP(84.15.13.144);
 
 setMQTTBrokerConnect(bool): Connect / Disconnect to the MQTT broker. Example: mqtt.setMQTTBrokerConnect(true); to connect, mqtt.setMQTTBrokerConnect(false); to disconnect  
 
@@ -47,8 +47,6 @@ Set last will
 Save/restore settings to NV memory
   
 
-For more information about this library please visit us at
-https://www.arduino.cc/en/Reference/{repository-name}
 
 == License ==
 
