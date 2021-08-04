@@ -1,6 +1,6 @@
 // Define the repository information in these attributes
 :repository-owner: arduino-libraries
-:repository-name: MKRNB SARA R410 MQTT Extension
+:repository-name: MKRNB SARA R410 MQTT Extension 0.1
 
 = {repository-name} Library for Arduino =
 
@@ -8,7 +8,26 @@ image:https://github.com/{repository-owner}/{repository-name}/workflows/Compile%
 image:https://github.com/{repository-owner}/{repository-name}/workflows/Spell%20Check/badge.svg["Spell Check Status", link="https://github.com/{repository-owner}/{repository-name}/actions?workflow=Spell+Check"]
 
 This library enables an Arduino MKR NB 1500 board to connect to the internet over a NarrowBand IoT or LTE Cat M1 network.
-The Cpt. Holzschnauz extension makes it possible to use the internal MQTT stack of the SARA R410 modem for convenient MQTT
+The Cpt. Holzschnauz extension makes it possible to use the internal MQTT stack of the SARA R410 modem for convenient MQTT:
+Check the example.
+
+Done:
+Constructor: Example: NBMqtt mqtt;
+getMQTTerror Get the last MQTT error from the modem.Example : mqtt.getMQTTerror();
+setMQTTClientID  Set the MQTT client ID : Use your SIM IMEI. Example mqtt.setMQTTClientID("352753090834234");
+setMQTTPort(Int): Set the MQTT Port (Normal is 1883, SSL is 8883(not yet implemented). Example :  mqtt.setMQTTPort(1883);
+setMQTTUserPassword(String, String): Set Username / Password for the MQTT broker. Example: mqtt.setMQTTUserPassword("username", "password"); 
+setMQTTbrokerURL(String): Set the MQTT broker URL (DNS is made automatic). Example: mqtt.setMQTTBrokerURL("public.cloud.shiftr.io"); 
+setMQTTbrokerIP(String): Set the MQTT broker IP (not necessary in general, provide a broker URL!)
+setMQTTBrokerConnect(bool): Connect / Disconnect to the MQTT broker. Example: mqtt.setMQTTBrokerConnect(true); to connect, mqtt.setMQTTBrokerConnect(false); to disconnect
+sendMQTTMsg(String, String): Send a MQTT message to a topic. Example: mqtt.sendMQTTMsg("/TestTopic", "TestMessage");
+setMQTTSubscribe(String): Subscribe to a topic. Example: setMQTTSubscribe("TestTopic");
+To do:
+Read out MQTT messages
+Set Timeouts
+Set last will
+Save/restore settings
+
 
 For more information about this library please visit us at
 https://www.arduino.cc/en/Reference/{repository-name}
