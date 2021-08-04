@@ -85,7 +85,7 @@ bool NBMqtt::setMQTTBrokerConnect(bool con)
 
 String NBMqtt::sendMQTTMsg(char *mqttTopic, char *mqttMsg)
 {
-  MODEM.sendf("AT+UMQTT=2,0,0,\"%s\",\"%s\"", mqttTopic, mqttMsg);
+  MODEM.sendf("AT+UMQTTC=2,0,0,\"%s\",\"%s\"", mqttTopic, mqttMsg);
   MODEM.waitForResponse(10000);
   return "";
 }
