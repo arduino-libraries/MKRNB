@@ -4,8 +4,6 @@
 
 = {repository-name} Library for Arduino =
 
-image:https://github.com/{repository-owner}/{repository-name}/workflows/Compile%20Examples/badge.svg["Compile Examples Status", link="https://github.com/{repository-owner}/{repository-name}/actions?workflow=Compile+Examples"]
-image:https://github.com/{repository-owner}/{repository-name}/workflows/Spell%20Check/badge.svg["Spell Check Status", link="https://github.com/{repository-owner}/{repository-name}/actions?workflow=Spell+Check"]
 
 This library enables an Arduino MKR NB 1500 board to connect to the internet over a NarrowBand IoT or LTE Cat M1 network.
 The Cpt. Holzschnauz extension makes it possible to use the internal MQTT functionality of the SARA R410 modem for convenient MQTT.
