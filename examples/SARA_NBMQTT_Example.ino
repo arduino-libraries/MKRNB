@@ -81,7 +81,10 @@ void setup() {
 void loop() {
 
 mqtt.sendMQTTMsg("/TestTopic", "TestMessage");
-
+// A little hint: If you want to construct the MQTT message out of Strings and other variables, use: 
+// char* mqtt_msg = foo bar etc.
+// mqtt.sendMQTTMsg("/TestTopic", mqtt_msg);  
+  
 String mqtt_error = mqtt.getMQTTerror();
 Serial.print("MQTT Error (See page 408 of the u-blox AT Manual): ");
 Serial.println(mqtt_error);
