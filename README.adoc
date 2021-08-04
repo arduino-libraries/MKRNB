@@ -12,7 +12,8 @@ The Cpt. Holzschnauz extension makes it possible to use the internal MQTT stack 
 Check the example.
 
 Done:
-Constructor: Example: NBMqtt mqtt;  
+Constructor: Example: NBMqtt mqtt;
+
 getMQTTerror Get the last MQTT error from the modem.Example : mqtt.getMQTTerror();  
 setMQTTClientID  Set the MQTT client ID : Use your SIM IMEI. Example mqtt.setMQTTClientID("352753090834234");  
 setMQTTPort(Int): Set the MQTT Port (Normal is 1883, SSL is 8883(not yet implemented). Example :  mqtt.setMQTTPort(1883);  
