@@ -15,19 +15,31 @@ Done:
 Constructor: Example: NBMqtt mqtt;
 
 getMQTTerror Get the last MQTT error from the modem.Example : mqtt.getMQTTerror();  
+
 setMQTTClientID  Set the MQTT client ID : Use your SIM IMEI. Example mqtt.setMQTTClientID("352753090834234");  
+
 setMQTTPort(Int): Set the MQTT Port (Normal is 1883, SSL is 8883(not yet implemented). Example :  mqtt.setMQTTPort(1883);  
-setMQTTUserPassword(String, String): Set Username / Password for the MQTT broker. Example: mqtt.setMQTTUserPassword("username", "password");   
+
+setMQTTUserPassword(String, String): Set Username / Password for the MQTT broker. Example: mqtt.setMQTTUserPassword("username", "password");  
+
 setMQTTbrokerURL(String): Set the MQTT broker URL (DNS is made automatic). Example: mqtt.setMQTTBrokerURL("public.cloud.shiftr.io");   
+
 setMQTTbrokerIP(String): Set the MQTT broker IP (not necessary in general, provide a broker URL!)  
+
 setMQTTBrokerConnect(bool): Connect / Disconnect to the MQTT broker. Example: mqtt.setMQTTBrokerConnect(true); to connect, mqtt.setMQTTBrokerConnect(false); to disconnect  
+
 sendMQTTMsg(String, String): Send a MQTT message to a topic. Example: mqtt.sendMQTTMsg("/TestTopic", "TestMessage");  
+
 setMQTTSubscribe(String): Subscribe to a topic. Example: setMQTTSubscribe("TestTopic");  
 
 To do:  
+
 Read out MQTT messages  
+
 Set Timeouts  
+
 Set last will  
+
 Save/restore settings  
   
 
