@@ -78,7 +78,6 @@ String NBMqtt::setMQTTBrokerIP(char *brokerIP)
 
 bool NBMqtt::setMQTTBrokerConnect(bool con)
 {
-  //MODEM.sendf("AT+UMQTTC=%d\n", con);
   if (con == true)
   {MODEM.sendf("AT+UMQTTC=1");}
   if (con == false)
