@@ -40,7 +40,7 @@ Set Timeouts
 
 Set last will  
 
-Save/restore settings  
+Save/restore settings to NV memory
   
 
 For more information about this library please visit us at
