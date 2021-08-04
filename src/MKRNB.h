@@ -32,5 +32,5 @@
 #include "NBUdp.h"
 
 #include "NBFileUtils.h"
-
+#include "NBMqtt.h"
 #endif
