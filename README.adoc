@@ -10,6 +10,7 @@ image:https://github.com/{repository-owner}/{repository-name}/workflows/Spell%20
 This library enables an Arduino MKR NB 1500 board to connect to the internet over a NarrowBand IoT or LTE Cat M1 network.
 The Cpt. Holzschnauz extension makes it possible to use the internal MQTT functionality of the SARA R410 modem for convenient MQTT.
 
+MQTT without external mqtt libraries, tcp socket headaches etc. Easy & convenient! Let the modem do the sh..!
 
 
 Check the example.
