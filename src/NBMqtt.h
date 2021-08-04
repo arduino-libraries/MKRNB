@@ -30,7 +30,7 @@ public:
    */
   int setMQTTPort(int mqttPort);
 
-  /** Set MQTT Username Pasword
+  /** Set MQTT Username Password
       @return -
    */
   String setMQTTUserPassword(char *mqttUser, char *mqttPW);
