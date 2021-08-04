@@ -13,7 +13,7 @@ The Cpt. Holzschnauz extension makes it possible to use the internal MQTT functi
 MQTT without external mqtt libraries, tcp socket headaches etc. Easy & convenient! Let the modem do the sh..!
 
 
-Check the example.
+UNDER CONSTRUCTION!! BETA! NOT FINISHED! CONTRIBUTE IF YOU CAN! Check the example.
 
 Done:
 Constructor: Example: NBMqtt mqtt;
