@@ -46,6 +46,15 @@ hostByName	KEYWORD2
 getTime	KEYWORD2
 setTime	KEYWORD2
 getLocalTime	KEYWORD2
+getMQTTerror KEYWORD2
+setMQTTClientID KEYWORD2
+setMQTTPort KEYWORD2
+setMQTTUserPassword KEYWORD2
+setMQTTbrokerURL KEYWORD2
+setMQTTbrokerIP KEYWORD2
+setMQTTBrokerConnect KEYWORD2
+sendMQTTMsg KEYWORD2
+setMQTTSubscribe KEYWORD2
 
 #######################################
 # Constants
