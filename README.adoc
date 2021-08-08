@@ -22,13 +22,13 @@ getMQTTerror Get the last MQTT error from the modem.Example: mqtt.getMQTTerror()
 
 setMQTTClientID  Set the MQTT client ID : Use your SIM IMEI. Example: mqtt.setMQTTClientID("352753090834234");  
 
-setMQTTPort(Int): Set the MQTT Port (Normaly not enrcypted is 1883, SSL is 8883. Example:  mqtt.setMQTTPort(1883);  
+setMQTTPort(Int): Set the clients MQTT Port (Normaly not enrcypted is 1883, SSL is 8883. Example:  mqtt.setMQTTPort(1883);  
 
 setMQTTUserPassword(String, String): Set Username / Password for the MQTT broker. Example: mqtt.setMQTTUserPassword("username", "password");  
 
 setMQTTbrokerURL(String): Set the MQTT broker URL (DNS is made automatic). Example: mqtt.setMQTTBrokerURL("public.cloud.shiftr.io");   
 
-setMQTTbrokerIP(String): Set the MQTT broker IP (not necessary in general, provide a broker URL!) Example: setMQTTbrokerIP(84.15.13.144);
+setMQTTbrokerIP(String, Int): Set the MQTT broker IP and port number(not necessary in general, provide a broker URL!) Example: mqtt.setMQTTBrokerIP("3.122.54.81",15458);
 
 setMQTTBrokerConnect(bool): Connect / Disconnect to the MQTT broker. Example: mqtt.setMQTTBrokerConnect(true); to connect, mqtt.setMQTTBrokerConnect(false); to disconnect  
 
