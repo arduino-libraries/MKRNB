@@ -57,9 +57,9 @@ String NBMqtt::setMQTTBrokerURL(char *brokerURL)
   return "";
 }
 
-String NBMqtt::setMQTTBrokerIP(char *brokerIP)
+String NBMqtt::setMQTTBrokerIP(char *brokerIP, int brokerPort)
 {
-  MODEM.sendf("AT+UMQTT=3,\"%s\"", brokerIP);
+  MODEM.sendf("AT+UMQTT=3,\"%s\",%d", brokerIP,brokerPort);
   MODEM.waitForResponse(10000);
   return "";
 }
