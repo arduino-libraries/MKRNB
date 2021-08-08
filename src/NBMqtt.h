@@ -45,7 +45,7 @@ public:
    */
   String setMQTTBrokerIP(char *brokerIP);
 
- /** Connect / Disconnect MQTT Broker
+  /** Connect / Disconnect MQTT Broker
       @return -
    */
   bool setMQTTBrokerConnect(bool con);
@@ -55,10 +55,15 @@ public:
    */
   String sendMQTTMsg(char *mqttTopic, char *mqttMsg);
 
-/** Subscribe to a Topic
+  /** Subscribe to a Topic
       @return -
    */
   String setMQTTSubscribe(char *sub_topic);
+  
+   /** MQTT NVram save and restore operations
+      @return -
+   */
+  int setMQTTConfig(int setNVRam);
 
 };
 
