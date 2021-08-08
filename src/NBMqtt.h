@@ -43,7 +43,7 @@ public:
   /** Set MQTT Broker IP
       @return -
    */
-  String setMQTTBrokerIP(char *brokerIP);
+  String setMQTTBrokerIP(char *brokerIP,int brokerPort);
 
   /** Connect / Disconnect MQTT Broker
       @return -
