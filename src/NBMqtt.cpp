@@ -100,3 +100,10 @@ String NBMqtt::setMQTTSubscribe(char *sub_topic)
   MODEM.waitForResponse(10000);
   return "";
 }
+
+int NBMqtt::setMQTTConfig(int setNVRam)
+{
+  MODEM.sendf("AT+UMQTTNV=%d", setNVRam);
+  MODEM.waitForResponse(10000);
+  return 0;
+}
