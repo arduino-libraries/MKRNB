@@ -55,6 +55,7 @@ setMQTTbrokerIP KEYWORD2
 setMQTTBrokerConnect KEYWORD2
 sendMQTTMsg KEYWORD2
 setMQTTSubscribe KEYWORD2
+setMQTTConfig KEYWORD2
 
 #######################################
 # Constants
