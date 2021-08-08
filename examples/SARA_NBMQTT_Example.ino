@@ -23,13 +23,14 @@ setMQTTbrokerIP(String): Set the MQTT broker IP (not necessary in general, provi
 setMQTTBrokerConnect(bool): Connect / Disconnect to the MQTT broker. Example: mqtt.setMQTTBrokerConnect(true); to connect, mqtt.setMQTTBrokerConnect(false); to disconnect
 sendMQTTMsg(String, String): Send a MQTT message to a topic. Example: mqtt.sendMQTTMsg("/TestTopic", "TestMessage");
 setMQTTSubscribe(String): Subscribe to a topic. Example: setMQTTSubscribe("TestTopic");
+setMQTTConfig(int): Save, restore and restore(factory settings) MQTT setting to/from the NVRam of the modem. Example: Save config to NVRam: mqtt.setMQTTConfig(2);, Load config from the NVRam mqtt.setMQTTConfig(2); Restore factory settings: mqtt.setMQTTConfig(0)
 
 To do:
 
 Read out MQTT messages
 Set Timeouts
 Set last will
-Save/restore settings
+SSL
   
 */
 
