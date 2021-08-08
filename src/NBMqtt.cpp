@@ -1,15 +1,3 @@
-/*
-TO DO
-AT+UMQTT 0
-AT+UMQTT 1
-AT+UMQTT 2
-
-AT+UMQTT 4
-AT+UMQTTC=1
-AT+UMQTTC=2
-
-
-*/
 #include "Modem.h"
 
 #include "NBMqtt.h"
