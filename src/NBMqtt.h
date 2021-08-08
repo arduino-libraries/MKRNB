@@ -40,7 +40,7 @@ public:
    */
   String setMQTTBrokerURL(char *brokerURL);
 
-  /** Set MQTT Broker IP
+  /** Set MQTT Broker IP and port number
       @return -
    */
   String setMQTTBrokerIP(char *brokerIP,int brokerPort);
