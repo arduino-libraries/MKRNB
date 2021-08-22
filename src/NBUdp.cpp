@@ -68,7 +68,7 @@ void NBUDP::stop()
     return;
   }
 
-  MODEM.sendf("AT+USOCL=%d", _socket);
+  MODEM.sendf("AT+USOCL=%d,1", _socket);
   MODEM.waitForResponse(10000);
 
   _socket = -1;
