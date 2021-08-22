@@ -165,7 +165,7 @@ int NBClient::ready()
 
     case CLIENT_STATE_CLOSE_SOCKET: {
 
-      MODEM.sendf("AT+USOCL=%d", _socket);
+      MODEM.sendf("AT+USOCL=%d,1", _socket);
 
       _state = CLIENT_STATE_WAIT_CLOSE_SOCKET;
       ready = 0;
@@ -285,13 +285,13 @@ size_t NBClient::write(const uint8_t* buf, size_t size)
   size_t written = 0;
   String command;
 
-  command.reserve(19 + (size > 256 ? 256 : size) * 2);
+  command.reserve(19 + (size > 512 ? 512 : size) * 2);
 
   while (size) {
     size_t chunkSize = size;
 
-    if (chunkSize > 256) {
-      chunkSize = 256;
+    if (chunkSize > 512) {
+      chunkSize = 512;
     }
 
     command.reserve(19 + chunkSize * 2);
@@ -436,7 +436,7 @@ void NBClient::stop()
     return;
   }
 
-  MODEM.sendf("AT+USOCL=%d", _socket);
+  MODEM.sendf("AT+USOCL=%d,1", _socket);
   MODEM.waitForResponse(10000);
 
   NBSocketBuffer.close(_socket);
