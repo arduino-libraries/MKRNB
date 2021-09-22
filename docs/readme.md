@@ -29,4 +29,4 @@ The library tries to be as compatible as possible with the current Ethernet and 
 
 ## Examples
 
-You can visit the [MKR NB 1500 documentation portal](https://docs.arduino.cc/hardware/mkr-nb-1500) for tutorials & examples. You can also browse through a set of examples at the [Examples from Libraries page](https://docs.arduino.cc/library-examples/#wifi-library).
+You can visit the [MKR NB 1500 documentation portal](https://docs.arduino.cc/hardware/mkr-nb-1500) for tutorials, technical specifications and more. You can also browse through a set of examples at the [Examples from Libraries page](https://docs.arduino.cc/library-examples/#wifi-library).
