@@ -2344,24 +2344,25 @@ PIN : String with the PIN number to check
 #### Returns
 int : Returns 0 if the PIN is valid, returns -1 if it is not.
 
-### `checkPIN()`
+### `checkPUK()`
 
 #### Description
 
-Queries the SIM card with a PIN number to see if it is valid.
+Queries the SIM card with a PUK and PIN number to see if it is valid.
 
 #### Syntax
 
 ```
-pin.checkPIN(PIN)
+pin.checkPIN(PUK, PIN)
 
 ```
 
 #### Parameters
-PIN : String with the PIN number to check
+- PIN : String with the PIN number to check
+- PUK : String with the PUK number to check
 
 #### Returns
-int : Returns 0 if the PIN is valid, returns -1 if it is not.
+int : Returns 0 if it is valid, returns -1 if it is not.
 
 ### `changePIN()`
 
