@@ -394,7 +394,7 @@ int NB_SMS::peek()
     return *_ptrUTF8;
   }
   if (_smsDataIndex < (signed)_incomingBuffer.length() && _smsDataIndex <= _smsDataEndIndex) {
-    char c = _incomingBuffer[_smsDataIndex++];
+    char c = _incomingBuffer[_smsDataIndex+1];
     if (_charset == SMS_CHARSET_GSM
         && (c >= 0x80 || c <= 0x24 || (c&0x1F) == 0 || (c&0x1F) >= 0x1B)) {
       for (auto &gsmchar : _gsmUTF8map) {
