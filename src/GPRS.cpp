@@ -127,7 +127,7 @@ int GPRS::ready()
         _state = GPRS_STATE_IDLE;
         _status = ERROR;
       } else {
-        if (_response.endsWith("1,1")) {
+          if (_response.indexOf("1,1") >= 0) {
           _state = GPRS_STATE_IDLE;
           _status = GPRS_READY;
           ready = 1;
