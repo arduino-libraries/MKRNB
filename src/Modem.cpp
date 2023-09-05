@@ -61,11 +61,6 @@ int ModemClass::begin(bool restart)
   // datasheet warns not to use _resetPin, this may lead to an unrecoverable state
   digitalWrite(_resetPin, LOW);
 
-  if (restart) {
-    shutdown();
-    end();
-  }
-
   _uart->begin(_baud > 115200 ? 115200 : _baud);
 
   // power on module
@@ -78,6 +73,14 @@ int ModemClass::begin(bool restart)
     if (!autosense()) {
       return 0;
     }
+  }
+
+  if (restart) {
+    shutdown();
+    end();
+    delay(1500);
+    setVIntPin(SARA_VINT_OFF);
+    begin(false);
   }
 
   if (!autosense()) {
