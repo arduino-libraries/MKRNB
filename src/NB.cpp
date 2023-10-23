@@ -60,7 +60,7 @@ enum {
 };
 
 NB::NB(bool debug) :
-  _state(ERROR),
+  _state(NB_ERROR),
   _readyState(0),
   _pin(NULL),
   _apn(""),
@@ -86,7 +86,7 @@ NB_NetworkStatus_t NB::begin(const char* pin, const char* apn, bool restart, boo
 NB_NetworkStatus_t NB::begin(const char* pin, const char* apn, const char* username, const char* password, bool restart, bool synchronous)
 {
   if (!MODEM.begin(restart)) {
-    _state = ERROR;
+    _state = NB_ERROR;
   } else {
     _pin = pin;
     _apn = apn;
@@ -100,7 +100,7 @@ NB_NetworkStatus_t NB::begin(const char* pin, const char* apn, const char* usern
 
       while (ready() == 0) {
         if (_timeout && !((millis() - start) < _timeout)) {
-          _state = ERROR;
+          _state = NB_ERROR;
           break;
         }
 
@@ -152,7 +152,7 @@ bool NB::secureShutdown()
 
 int NB::ready()
 {
-  if (_state == ERROR) {
+  if (_state == NB_ERROR) {
     return 2;
   }
 
@@ -172,7 +172,7 @@ int NB::ready()
   
     case READY_STATE_WAIT_SET_ERROR_DISABLED: {
       if (ready > 1) {
-        _state = ERROR;
+        _state = NB_ERROR;
         ready = 2;
       } else {
         _readyState = READY_STATE_SET_MINIMUM_FUNCTIONALITY_MODE;
@@ -191,7 +191,7 @@ int NB::ready()
 
     case READY_STATE_WAIT_SET_MINIMUM_FUNCTIONALITY_MODE:{
       if (ready > 1) {
-        _state = ERROR;
+        _state = NB_ERROR;
         ready = 2;
       } else {
         _readyState = READY_STATE_CHECK_SIM;
@@ -222,7 +222,7 @@ int NB::ready()
           _readyState = READY_STATE_UNLOCK_SIM;
           ready = 0;
         } else {
-          _state = ERROR;
+          _state = NB_ERROR;
           ready = 2;
         }
       }
@@ -238,7 +238,7 @@ int NB::ready()
         _readyState = READY_STATE_WAIT_UNLOCK_SIM_RESPONSE;
         ready = 0;
       } else {
-        _state = ERROR;
+        _state = NB_ERROR;
         ready = 2;
       }
       break;
@@ -246,7 +246,7 @@ int NB::ready()
 
     case READY_STATE_WAIT_UNLOCK_SIM_RESPONSE: {
       if (ready > 1) {
-        _state = ERROR;
+        _state = NB_ERROR;
         ready = 2;
       } else {
         _readyState = READY_STATE_DETACH_DATA;
@@ -265,7 +265,7 @@ int NB::ready()
 
     case READY_STATE_WAIT_DETACH_DATA:{
       if (ready > 1) {
-        _state = ERROR;
+        _state = NB_ERROR;
         ready = 2;
       } else {
         _readyState = READY_STATE_SET_PREFERRED_MESSAGE_FORMAT;
@@ -284,7 +284,7 @@ int NB::ready()
 
     case READY_STATE_WAIT_SET_PREFERRED_MESSAGE_FORMAT_RESPONSE: {
       if (ready > 1) {
-        _state = ERROR;
+        _state = NB_ERROR;
         ready = 2;
       } else {
         _readyState = READY_STATE_SET_HEX_MODE;
@@ -303,7 +303,7 @@ int NB::ready()
 
     case READY_STATE_WAIT_SET_HEX_MODE_RESPONSE: {
       if (ready > 1) {
-        _state = ERROR;
+        _state = NB_ERROR;
         ready = 2;
       } else {
         _readyState = READY_STATE_SET_AUTOMATIC_TIME_ZONE;
@@ -322,7 +322,7 @@ int NB::ready()
 
     case READY_STATE_WAIT_SET_AUTOMATIC_TIME_ZONE_RESPONSE: {
       if (ready > 1) {
-        _state = ERROR;
+        _state = NB_ERROR;
         ready = 2;
       } else {
         _readyState = READY_STATE_SET_APN;
@@ -340,7 +340,7 @@ int NB::ready()
 
     case READY_STATE_WAIT_SET_APN: {
       if (ready > 1) {
-        _state = ERROR;
+        _state = NB_ERROR;
         ready = 2;
       } else {
         _readyState = READY_STATE_SET_APN_AUTH;
@@ -365,7 +365,7 @@ int NB::ready()
 
     case READY_STATE_WAIT_SET_APN_AUTH: {
       if (ready > 1) {
-        _state = ERROR;
+        _state = NB_ERROR;
         ready = 2;
       } else {
         _readyState = READY_STATE_SET_FULL_FUNCTIONALITY_MODE;
@@ -383,7 +383,7 @@ int NB::ready()
 
     case READY_STATE_WAIT_SET_FULL_FUNCTIONALITY_MODE:{
       if (ready > 1) {
-        _state = ERROR;
+        _state = NB_ERROR;
         ready = 2;
       } else {
         _readyState = READY_STATE_CHECK_REGISTRATION;
@@ -403,7 +403,7 @@ int NB::ready()
 
     case READY_STATE_WAIT_CHECK_REGISTRATION_RESPONSE: {
       if (ready > 1) {
-        _state = ERROR;
+        _state = NB_ERROR;
         ready = 2;
       } else {
         int status = _response.charAt(_response.length() - 1) - '0';
@@ -420,7 +420,7 @@ int NB::ready()
           _state = CONNECTING;
           ready = 0;
         } else if (status == 3) {
-          _state = ERROR;
+          _state = NB_ERROR;
           ready = 2;
         } 
       }

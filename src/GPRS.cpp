@@ -51,7 +51,7 @@ NB_NetworkStatus_t GPRS::attachGPRS(bool synchronous)
 
     while (ready() == 0) {
       if (_timeout && !((millis() - start) < _timeout)) {
-        _state = ERROR;
+        _state = NB_ERROR;
         break;
       }
       delay(500);
@@ -106,7 +106,7 @@ int GPRS::ready()
     case GPRS_STATE_WAIT_ATTACH_RESPONSE: {
       if (ready > 1) {
         _state = GPRS_STATE_IDLE;
-        _status = ERROR;
+        _status = NB_ERROR;
       } else {
         _state = GPRS_STATE_CHECK_ATTACHED;
         ready = 0;
@@ -125,7 +125,7 @@ int GPRS::ready()
     case GPRS_STATE_WAIT_CHECK_ATTACHED_RESPONSE: {
       if (ready > 1) {
         _state = GPRS_STATE_IDLE;
-        _status = ERROR;
+        _status = NB_ERROR;
       } else {
           if (_response.indexOf("1,1") >= 0) {
           _state = GPRS_STATE_IDLE;
@@ -149,7 +149,7 @@ int GPRS::ready()
     case GPRS_STATE_WAIT_DEATTACH_RESPONSE: {
       if (ready > 1) {
         _state = GPRS_STATE_IDLE;
-        _status = ERROR;
+        _status = NB_ERROR;
       } else {
         _state = GPRS_STATE_IDLE;
         _status = IDLE;

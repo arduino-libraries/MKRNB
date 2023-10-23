@@ -56,19 +56,63 @@ int ModemClass::isPowerOn()
   return digitalRead(_vIntPin);
 }
 
+#ifdef ARDUINO_PORTENTA_H7_M7
+#include <mbed.h>
+#include <BQ24195.h>
+mbed::DigitalInOut pwr(PD_4);
+mbed::DigitalInOut rst(PE_3);
+#endif
+
 int ModemClass::begin(bool restart)
 {
-  // datasheet warns not to use _resetPin, this may lead to an unrecoverable state
-  digitalWrite(_resetPin, LOW);
+#ifdef ARDUINO_PORTENTA_H7_M7
+  pwr.input();
+  rst.input();
+  PMIC.begin();
+  PMIC.disableWatchdog();
+  // Set the input current limit to 2 A and the overload input voltage to 3.88 V
+  PMIC.setInputCurrentLimit(3.0);
+  PMIC.setInputVoltageLimit(3.88);
+  // set the minimum voltage used to feeding the module embed on Board
+  PMIC.setMinimumSystemVoltage(3.8);
+  // Set the desired charge voltage to 4.11 V
+  PMIC.setChargeVoltage(4.2);
+  // Set the charge current to 375 mA
+  // the charge current should be defined as maximum at (C for hour)/2h
+  // to avoid battery explosion (for example for a 750 mAh battery set to 0.375 A)
+  PMIC.setChargeCurrent(0.375);
+  PMIC.enableBoostMode();
+  PMIC.setInputCurrentLimit(3.0);
 
+  pwr.output();
+  pwr = 0;
+  delay(150);
+  pwr = 1;
+  delay(150);
+  pwr.input();
+  rst.output();
+  rst = 0;
+  delay(150);
+  rst = 1;
+  delay(150);
+  rst.input();
+#endif
+
+#ifndef ARDUINO_PORTENTA_H7_M7
+  // datasheet warns not to use _resetPin, this may lead to an unrecoverable state
+  pinMode(_powerOnPin, OUTPUT);
+  pinMode(_resetPin, OUTPUT);
+  digitalWrite(_resetPin, LOW);
   if (restart) {
     shutdown();
     end();
   }
+#endif
 
   _uart->begin(_baud > 115200 ? 115200 : _baud);
 
   // power on module
+#ifndef ARDUINO_PORTENTA_H7_M7
   if (!isPowerOn()) {
     digitalWrite(_powerOnPin, HIGH);
     delay(150); // Datasheet says power-on pulse should be >=150ms, <=3200ms
@@ -79,6 +123,7 @@ int ModemClass::begin(bool restart)
       return 0;
     }
   }
+#endif
 
   if (!autosense()) {
     return 0;
@@ -105,7 +150,11 @@ int ModemClass::begin(bool restart)
 int ModemClass::shutdown()
 {
   // AT command shutdown
+#ifdef ARDUINO_PORTENTA_H7_M7
+  if (autosense(200)) {
+#else
   if (isPowerOn()) {
+#endif
     send("AT+CPWROFF");
     if (waitForResponse(40000) != 1) {
       return 0;
@@ -119,7 +168,11 @@ void ModemClass::end()
 {
   _uart->end();
   // Hardware pin power off
+#ifdef ARDUINO_PORTENTA_H7_M7
+  if (1) {
+#else
   if (isPowerOn()) {
+#endif
     digitalWrite(_powerOnPin, HIGH);
     delay(1500); // Datasheet says power-off pulse should be >=1500ms
     digitalWrite(_powerOnPin, LOW);
@@ -388,5 +441,13 @@ void ModemClass::setBaudRate(unsigned long baud)
 {
   _baud = baud;
 }
+
+#ifdef ARDUINO_PORTENTA_H7_M7
+#include <mbed.h>
+UART SerialSARA(PA_9, PA_10, NC, NC);
+mbed::DigitalOut rts(PI_14, 0);
+#define SARA_PWR_ON PD_4
+#define SARA_RESETN PE_3
+#endif
 
 ModemClass MODEM(SerialSARA, 115200, SARA_RESETN, SARA_PWR_ON, SARA_VINT);
