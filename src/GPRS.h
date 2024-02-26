@@ -63,6 +63,8 @@ public:
    */
   NB_NetworkStatus_t detachGPRS(bool synchronous = true);
 
+  NB_NetworkStatus_t checkAttachmentStatus();
+
   /** Get actual assigned IP address in IPAddress format
       @return IP address in IPAddress format
    */

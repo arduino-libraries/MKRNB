@@ -162,6 +162,37 @@ int GPRS::ready()
   return ready;
 }
 
+//Check to see if the sim card that is inside the MKRNB is attached or detached to a LTE-M provideer
+NB_NetworkStatus_t GPRS::checkAttachmentStatus()
+{
+  MODEM.setResponseDataStorage(&_response);
+  MODEM.send("AT+CGATT?");
+  _state = GPRS_STATE_WAIT_CHECK_ATTACHED_RESPONSE;
+  
+  int ready = 0;
+  
+  while (ready == 0) {
+    ready = MODEM.ready();
+    
+    if (ready > 1) {
+      _state = GPRS_STATE_IDLE;
+      _status = NB_ERROR;
+      break;
+    }
+    
+    delay(500);
+  }
+  
+  if (_response.indexOf("1,1") >= 0) {
+    _state = GPRS_STATE_IDLE;
+    return GPRS_READY;
+  } else {
+    _state = GPRS_STATE_IDLE;
+    return IDLE;
+  }
+}
+
+
 IPAddress GPRS::getIPAddress()
 {
   String response;
