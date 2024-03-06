@@ -19,6 +19,16 @@ jobs:
     env:
       SKETCHES_REPORTS_PATH: sketches-reports
 
+    strategy:
+      fail-fast: false
+
+      matrix:
+        board:
+          - fqbn: arduino:samd:mkrnb1500
+            platforms: |
+              - name: arduino:samd
+            artifact-name-suffix: arduino-samd-mkrnb1500
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -27,9 +37,10 @@ jobs:
         uses: arduino/compile-sketches@main
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          fqbn: arduino:samd:mkrnb1500
+          fqbn: ${{ matrix.board.fqbn }}
+          platforms: ${{ matrix.board.platforms }}
           libraries: |
-            # Install the WiFi101 library from the local path
+            # Install the MKRNB library from the local path
             - source-path: ./
           sketch-paths: |
             examples
@@ -39,5 +50,6 @@ jobs:
       - name: Save memory usage change report as artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.SKETCHES_REPORTS_PATH }}
+          if-no-files-found: error
           path: ${{ env.SKETCHES_REPORTS_PATH }}
+          name: sketches-report-${{ matrix.board.artifact-name-suffix }}
