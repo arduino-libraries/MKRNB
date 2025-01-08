@@ -25,7 +25,14 @@
 
 #include "Modem.h"
 
-class GPRS {
+enum {
+  GPRS_PING_DEST_UNREACHABLE = -1, 
+  GPRS_PING_TIMEOUT = -2,
+  GPRS_PING_UNKNOWN_HOST = -3,
+  GPRS_PING_ERROR = -4
+};
+
+class GPRS : public ModemUrcHandler {
 
 public:
 
@@ -69,6 +76,12 @@ public:
   IPAddress getIPAddress();
   void setTimeout(unsigned long timeout);
   NB_NetworkStatus_t status();
+
+  int ping(const char* hostname, uint8_t ttl = 128);
+  int ping(const String& hostname, uint8_t ttl = 128);
+  int ping(IPAddress ip, uint8_t ttl = 128);
+
+  void handleUrc(const String& urc);
 
 private:
   int _state;

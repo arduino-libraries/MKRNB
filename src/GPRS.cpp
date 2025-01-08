@@ -193,3 +193,71 @@ NB_NetworkStatus_t GPRS::status()
   MODEM.poll();
   return _status;
 }
+
+int GPRS::ping(const char* hostname, uint8_t ttl)
+{
+  String response;
+  
+  _pingResult = 0;
+
+  MODEM.sendf("AT+UPING=\"%s\",1,32,5000", hostname);
+  if (MODEM.waitForResponse() != 1) {
+    return GPRS_PING_ERROR;
+  };
+
+  for (unsigned long start = millis(); (millis() - start) < 5000 && (_pingResult == 0);) {
+    MODEM.poll();
+  }
+
+  if (_pingResult == 0) {
+    _pingResult = GPRS_PING_TIMEOUT;
+  }
+
+  return _pingResult;
+}
+
+int GPRS::ping(const String &hostname, uint8_t ttl)
+{
+  return ping(hostname.c_str(), ttl);
+}
+
+int GPRS::ping(IPAddress ip, uint8_t ttl)
+{
+  String host;
+  host.reserve(15);
+
+  host += ip[0];
+  host += '.';
+  host += ip[1];
+  host += '.';
+  host += ip[2];
+  host += '.';
+  host += ip[3];
+
+  return ping(host, ttl);
+}
+
+void GPRS::handleUrc(const String &urc)
+{
+  if (urc.startsWith("+UUPINGER: ")) {
+    if (urc.endsWith("8")) {
+      _pingResult = GPRS_PING_UNKNOWN_HOST;
+    } else {
+      _pingResult = GPRS_PING_ERROR;
+    }
+  } else if (urc.startsWith("+UUPING: ")) {
+    int lastCommaIndex = urc.lastIndexOf(',');
+
+    if (lastCommaIndex == -1) {
+      _pingResult = GPRS_PING_ERROR;
+    } else {
+      _pingResult = urc.substring(lastCommaIndex + 1).toInt();
+
+      if (_pingResult == -1) {
+        _pingResult = GPRS_PING_TIMEOUT;
+      } else if (_pingResult <= 0) {
+        _pingResult = GPRS_PING_DEST_UNREACHABLE;
+      }
+    }
+  }
+}
