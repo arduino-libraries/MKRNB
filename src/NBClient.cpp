@@ -317,7 +317,8 @@ size_t NBClient::write(const uint8_t* buf, size_t size)
     MODEM.send(command);
     if (_writeSync) {
       String response;
-      int status = MODEM.waitForResponse(10000, &response);
+      int status = 
+        ForResponse(120000, &response);
       if ( status != 1) {
         if (status == 4 && response.indexOf("Operation not allowed") != -1 ) {
           stop();
@@ -437,7 +438,7 @@ void NBClient::stop()
   }
 
   MODEM.sendf("AT+USOCL=%d", _socket);
-  MODEM.waitForResponse(10000);
+  MODEM.waitForResponse(120000);
 
   NBSocketBuffer.close(_socket);
 
