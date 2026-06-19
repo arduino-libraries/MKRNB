@@ -1,16 +1,15 @@
-// Define the repository information in these attributes
-:repository-owner: arduino-libraries
-:repository-name: MKRNB
+:repository-owner: marcus-peterson
+:repository-name: MKRNB_v2
 
-= {repository-name} Library for Arduino =
+= MKRNB_v2 Library for Arduino =
 
-image:https://github.com/{repository-owner}/{repository-name}/workflows/Compile%20Examples/badge.svg["Compile Examples Status", link="https://github.com/{repository-owner}/{repository-name}/actions?workflow=Compile+Examples"]
-image:https://github.com/{repository-owner}/{repository-name}/workflows/Spell%20Check/badge.svg["Spell Check Status", link="https://github.com/{repository-owner}/{repository-name}/actions?workflow=Spell+Check"]
+image:https://github.com/marcus-peterson/MKRNB_v2/workflows/Compile%20Examples/badge.svg["Compile Examples Status", link="https://github.com/marcus-peterson/MKRNB_v2/actions?workflow=Compile+Examples"]
+image:https://github.com/marcus-peterson/MKRNB_v2/workflows/Spell%20Check/badge.svg["Spell Check Status", link="https://github.com/marcus-peterson/MKRNB_v2/actions?workflow=Spell+Check"]
 
-This library enables an Arduino MKR NB 1500 board to connect to the internet over a NarrowBand IoT or LTE Cat M1 network. 
+This library enables an Arduino MKR NB 1500 board to connect to the internet over a NarrowBand IoT or LTE Cat M1 network. It is an extension of the original MKRNB library, designed to provide enhanced control and capabilities for commercial applications.
 
-For more information about this library please visit us at
-https://www.arduino.cc/en/Reference/{repository-name}
+For more information about the source of this library please visit the official Arduino MKRNB documentation
+https://www.arduino.cc/en/Reference/MKRNB
 
 == License ==
 
