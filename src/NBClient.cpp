@@ -300,7 +300,9 @@ size_t NBClient::write(const uint8_t* buf, size_t size)
     command += _socket;
     command += ",";
     command += chunkSize;
-    command += ",\"";
+    MODEM.send(command);
+    delay(60);
+    command = "";
 
     for (size_t i = 0; i < chunkSize; i++) {
       byte b = buf[i + written];
@@ -311,8 +313,6 @@ size_t NBClient::write(const uint8_t* buf, size_t size)
       command += (char)(n1 > 9 ? 'A' + n1 - 10 : '0' + n1);
       command += (char)(n2 > 9 ? 'A' + n2 - 10 : '0' + n2);
     }
-
-    command += "\"";
 
     MODEM.send(command);
     if (_writeSync) {
